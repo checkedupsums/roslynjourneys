@@ -450,9 +450,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                             }
                         }
                         break;
-                    case MemberResolutionKind.WrongRefKind:
+                    /*case MemberResolutionKind.WrongRefKind:
                     case MemberResolutionKind.WrongReturnType:
-                        break;
+                        break;*/
                     default:
                         // Based on the asserts above, we know that only the kinds above
                         // are possible at this point.  This should only throw if a new

@@ -449,8 +449,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 RemoveStaticInstanceMismatches(results, arguments, receiver);
 
                 RemoveConstraintViolations(results, template: new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo));
-                //if ((options & Options.IsMethodGroupConversion) != 0) // << Excuse me, what the fuck?
-                RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0);
+
+                RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, options);
             }
 
             if ((options & Options.IsFunctionPointerResolution) != 0)
@@ -835,15 +835,17 @@ outerDefault:
             ref CompoundUseSiteInfo<AssemblySymbol> useSiteInfo,
             RefKind? returnRefKind,
             TypeSymbol returnType,
-            bool isFunctionPointerConversion) where TMember : Symbol
+            Options options) where TMember : Symbol
         {
+            bool isFunctionPointerConversion = (options & Options.IsFunctionPointerResolution) != 0;
+            bool isForTheMessCalledBusiness = (options & Options.IsMethodGroupConversion) != 0; 
             // When the feature 'ImprovedOverloadCandidates' is enabled, then a delegate conversion overload resolution
             // rejects candidates that have the wrong return ref kind or return type.
 
             // Delegate conversions apply to method in a method group, not to properties in a "property group".
             Debug.Assert(typeof(TMember) == typeof(MethodSymbol));
 
-            int f, j = -1;
+            int f = 0;
 
             if (returnType is null)
             {
@@ -855,25 +857,25 @@ outerDefault:
                     var method = (MethodSymbol)(Symbol)result.Member;
 
                     if (method.ReturnsVoid)
-                    {
-                        j = f;
-                        break;
-                    }
+                        goto Sic;
                 }
 
-                if (j >= 0)
-                    for (f = 0; f < results.Count; ++f)
-                    {
-                        if (f == j)
-                            continue;
-                        var result = results[f];
-                        if (!result.Result.IsValid)
-                            continue;
+                goto CononTam;
 
-                        results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
-                    }
+Sic:
+                for (f = 0; f < results.Count; ++f)
+                {
+                    var result = results[f];
+                    if (!result.Result.IsValid)
+                        continue;
+                    var method = (MethodSymbol)(Symbol)result.Member;
+                    if (method.ReturnsVoid)
+                        continue;
+                    results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
+                }
             }
 
+CononTam:
             for (f = 0; f < results.Count; ++f)
             {
                 var result = results[f];
@@ -900,13 +902,23 @@ outerDefault:
                     returnsMatch = false;
                 }
 
-                if (!returnsMatch)
+                if (isForTheMessCalledBusiness)
                 {
-                    results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
+                    if (!returnsMatch)
+                    {
+                        results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
+                    }
+                    else if (method.RefKind != returnRefKind)
+                    {
+                        results[f] = result.WithResult(MemberAnalysisResult.WrongRefKind());
+                    }
                 }
-                else if (method.RefKind != returnRefKind)
+                else
                 {
-                    results[f] = result.WithResult(MemberAnalysisResult.WrongRefKind());
+                    if (!returnsMatch || method.RefKind != returnRefKind)
+                    {
+                        results.RemoveAt(f);
+                    }
                 }
             }
         }

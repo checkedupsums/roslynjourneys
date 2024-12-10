@@ -1034,13 +1034,13 @@ namespace Microsoft.CodeAnalysis.CSharp
                 }
 
                 BoundExpression boundArgument = BindValue(argumentSyntax.Expression, diagnostics, BindValueKind.RValue);
-                if (boundArgument.Type?.SpecialType == SpecialType.System_Void)
+                /*if (boundArgument.Type?.SpecialType == SpecialType.System_Void)
                 {
                     diagnostics.Add(ErrorCode.ERR_VoidInTuple, argumentSyntax.Location);
                     boundArgument = new BoundBadExpression(
                         argumentSyntax, LookupResultKind.Empty, ImmutableArray<Symbol>.Empty,
                         ImmutableArray.Create<BoundExpression>(boundArgument), CreateErrorType("void"));
-                }
+                }*/
 
                 boundArguments.Add(boundArgument);
 
@@ -2536,9 +2536,9 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundExpression BindCast(CastExpressionSyntax node, BindingDiagnosticBag diagnostics)
         {
-            BoundExpression operand = this.BindValue(node.Expression, diagnostics, BindValueKind.RValue);
             TypeWithAnnotations targetTypeWithAnnotations = this.BindType(node.Type, diagnostics);
             TypeSymbol targetType = targetTypeWithAnnotations.Type;
+            BoundExpression operand = this.BindValue(node.Expression, diagnostics, BindValueKind.RValue, targetType);
 
             if (targetType.IsNullableType() &&
                 !operand.HasAnyErrors &&
