@@ -963,14 +963,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             var usingToken = this.EatToken(SyntaxKind.UsingKeyword);
             var staticToken = this.TryEatToken(SyntaxKind.StaticKeyword);
             var unsafeToken = this.TryEatToken(SyntaxKind.UnsafeKeyword);
-
-            // if the user wrote `using unsafe static` skip the `static` and tell them it needs to be `using static unsafe`.
-            if (staticToken is null && unsafeToken != null && this.CurrentToken.Kind == SyntaxKind.StaticKeyword)
-            {
-                // create a missing 'static' token so that later binding does recognize what the user wanted.
-                staticToken = SyntaxFactory.MissingToken(SyntaxKind.StaticKeyword);
-                unsafeToken = AddTrailingSkippedSyntax(unsafeToken, AddError(this.EatToken(), ErrorCode.ERR_BadStaticAfterUnsafe));
-            }
+            staticToken ??= this.EatTokenBiasedly(SyntaxKind.StaticKeyword);
 
             var alias = this.IsNamedAssignment() ? ParseNameEquals() : null;
 
@@ -9864,7 +9857,6 @@ done:
 
         private UnsafeStatementSyntax ParseUnsafeStatement(SyntaxList<AttributeListSyntax> attributes)
         {
-            Debug.Assert(this.CurrentToken.Kind == SyntaxKind.UnsafeKeyword);
             return _syntaxFactory.UnsafeStatement(
                 attributes,
                 this.EatToken(SyntaxKind.UnsafeKeyword),

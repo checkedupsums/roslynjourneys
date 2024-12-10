@@ -5368,6 +5368,11 @@
         <target state="translated">Parametre okunmadı. Bu ada sahip özelliği başlatmak için bu parametreyi kullanmayı unutmuş olabilirsiniz.</target>
         <note />
       </trans-unit>
+      <trans-unit id="WRN_UnsafeUnneeded">
+        <source>Unneeded when compiling with /unsafe.</source>
+        <target state="new">Unneeded when compiling with /unsafe.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="WRN_UseDefViolation">
         <source>Use of unassigned local variable '{0}'</source>
         <target state="translated">Atanmayan '{0}' yerel değişkeninin kullanımı</target>
@@ -6496,11 +6501,6 @@
       <trans-unit id="ERR_IllegalArglist">
         <source>An __arglist expression may only appear inside of a call or new expression</source>
         <target state="translated">__arglist ifadesi yalnızca call veya new ifadesinde görünebilir</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ERR_IllegalUnsafe">
-        <source>Unsafe code may only appear if compiling with /unsafe</source>
-        <target state="translated">Unsafe kod yalnızca /unsafe ile derleme yapılırsa görünebilir</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_AmbigMember">

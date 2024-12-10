@@ -376,6 +376,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             var flags = BinderFlags.SuppressConstraintChecks | BinderFlags.SuppressObsoleteChecks;
             flags |= BinderFlags.UnsafeRegion;
 
+            if (usingDirective.UnsafeKeyword != default)
+                diagnostics.Add(ErrorCode.WRN_ErrorOverride, usingDirective.UnsafeKeyword, "Unsafe not needed for this target.");
+
             var declarationBinder = ContainingSymbol.DeclaringCompilation
                 .GetBinderFactory(syntax.SyntaxTree)
                 .GetBinder(syntax)

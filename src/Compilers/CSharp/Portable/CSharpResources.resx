@@ -1065,8 +1065,8 @@
   <data name="ERR_IllegalArglist" xml:space="preserve">
     <value>An __arglist expression may only appear inside of a call or new expression</value>
   </data>
-  <data name="ERR_IllegalUnsafe" xml:space="preserve">
-    <value>Unsafe code may only appear if compiling with /unsafe</value>
+  <data name="WRN_UnsafeUnneeded" xml:space="preserve">
+    <value>Unneeded when compiling with /unsafe.</value>
   </data>
   <data name="ERR_AmbigMember" xml:space="preserve">
     <value>Ambiguity between '{0}' and '{1}'</value>

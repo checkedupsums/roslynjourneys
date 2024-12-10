@@ -5368,6 +5368,11 @@
         <target state="translated">参数未读。是否忘记通过它来使用该名称初始化属性?</target>
         <note />
       </trans-unit>
+      <trans-unit id="WRN_UnsafeUnneeded">
+        <source>Unneeded when compiling with /unsafe.</source>
+        <target state="new">Unneeded when compiling with /unsafe.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="WRN_UseDefViolation">
         <source>Use of unassigned local variable '{0}'</source>
         <target state="translated">使用了未赋值的局部变量“{0}”</target>
@@ -6496,11 +6501,6 @@
       <trans-unit id="ERR_IllegalArglist">
         <source>An __arglist expression may only appear inside of a call or new expression</source>
         <target state="translated">__arglist 表达式只能出现在调用或 new 表达式内部</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ERR_IllegalUnsafe">
-        <source>Unsafe code may only appear if compiling with /unsafe</source>
-        <target state="translated">不安全代码只会在使用 /unsafe 编译的情况下出现</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_AmbigMember">

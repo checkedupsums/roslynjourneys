@@ -5368,6 +5368,11 @@
         <target state="translated">パラメーターが未読のため、この名前のプロパティを初期化するために使用していることを確認する必要がある</target>
         <note />
       </trans-unit>
+      <trans-unit id="WRN_UnsafeUnneeded">
+        <source>Unneeded when compiling with /unsafe.</source>
+        <target state="new">Unneeded when compiling with /unsafe.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="WRN_UseDefViolation">
         <source>Use of unassigned local variable '{0}'</source>
         <target state="translated">未割り当てのローカル変数 '{0}' が使用されました</target>
@@ -6496,11 +6501,6 @@
       <trans-unit id="ERR_IllegalArglist">
         <source>An __arglist expression may only appear inside of a call or new expression</source>
         <target state="translated">__arglist 式は呼び出し、または new 式の中でのみ有効です</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ERR_IllegalUnsafe">
-        <source>Unsafe code may only appear if compiling with /unsafe</source>
-        <target state="translated">アンセーフ コードは /unsafe でコンパイルした場合のみ有効です</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_AmbigMember">

@@ -5368,6 +5368,11 @@ strument:TestCoverage      產生檢測要收集
         <target state="translated">參數未讀取。是否忘記使用該參數來初始化該名稱的屬性?</target>
         <note />
       </trans-unit>
+      <trans-unit id="WRN_UnsafeUnneeded">
+        <source>Unneeded when compiling with /unsafe.</source>
+        <target state="new">Unneeded when compiling with /unsafe.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="WRN_UseDefViolation">
         <source>Use of unassigned local variable '{0}'</source>
         <target state="translated">使用未指派的區域變數 '{0}'</target>
@@ -6496,11 +6501,6 @@ strument:TestCoverage      產生檢測要收集
       <trans-unit id="ERR_IllegalArglist">
         <source>An __arglist expression may only appear inside of a call or new expression</source>
         <target state="translated">__arglist 運算式只可出現於呼叫或 new 運算式中</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ERR_IllegalUnsafe">
-        <source>Unsafe code may only appear if compiling with /unsafe</source>
-        <target state="translated">只有在編譯時指定了 /unsafe，才會出現 unsafe 程式碼</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_AmbigMember">

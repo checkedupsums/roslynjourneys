@@ -735,6 +735,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             var flags = BinderFlags.SuppressConstraintChecks;
                             if (usingDirective.UnsafeKeyword != default)
                             {
+                                var unsafeKeywordLocation = usingDirective.UnsafeKeyword.GetLocation();
+                                declaringSymbol.CheckUnsafeModifier(DeclarationModifiers.Unsafe, unsafeKeywordLocation, diagnostics);
                                 flags |= BinderFlags.UnsafeRegion;
                             }
                             else

@@ -169,6 +169,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundStatement BindUnsafeStatement(UnsafeStatementSyntax node, BindingDiagnosticBag diagnostics)
         {
+            if (this.Compilation.Options.AllowUnsafe)
+            {
+                Error(diagnostics, ErrorCode.WRN_ErrorOverride, node.UnsafeKeyword, new CSDiagnosticInfo(ErrorCode.WRN_UnsafeUnneeded));
+            }
+
             return BindEmbeddedBlock(node.Block, diagnostics);
         }
 

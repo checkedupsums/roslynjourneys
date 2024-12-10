@@ -5368,6 +5368,11 @@
         <target state="translated">El parámetro no se ha leído ¿Olvidó usarlo para inicializar la propiedad con ese nombre?</target>
         <note />
       </trans-unit>
+      <trans-unit id="WRN_UnsafeUnneeded">
+        <source>Unneeded when compiling with /unsafe.</source>
+        <target state="new">Unneeded when compiling with /unsafe.</target>
+        <note />
+      </trans-unit>
       <trans-unit id="WRN_UseDefViolation">
         <source>Use of unassigned local variable '{0}'</source>
         <target state="translated">Uso de la variable local no asignada '{0}'</target>
@@ -6496,11 +6501,6 @@
       <trans-unit id="ERR_IllegalArglist">
         <source>An __arglist expression may only appear inside of a call or new expression</source>
         <target state="translated">La expresión __arglist solo puede aparecer dentro de una llamada o una expresión new</target>
-        <note />
-      </trans-unit>
-      <trans-unit id="ERR_IllegalUnsafe">
-        <source>Unsafe code may only appear if compiling with /unsafe</source>
-        <target state="translated">El código no seguro solo puede aparecer si se compila con /unsafe</target>
         <note />
       </trans-unit>
       <trans-unit id="ERR_AmbigMember">

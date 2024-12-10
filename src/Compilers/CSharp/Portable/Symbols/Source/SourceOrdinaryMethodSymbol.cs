@@ -61,6 +61,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         {
             Debug.Assert(diagnostics.DiagnosticBag is object);
 
+            this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
+
             HasExplicitAccessModifier = hasExplicitAccessMod;
             bool hasAnyBody = syntax.HasAnyBody();
 
@@ -505,7 +507,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 diagnostics.Add(ErrorCode.ERR_PartialMethodExtensionDifference, implementation.GetFirstLocation());
             }
 
-            if (definition.IsUnsafe != implementation.IsUnsafe) // Don't cascade.
+            if (definition.IsUnsafe != implementation.IsUnsafe && definition.CompilationAllowsUnsafe()) // Don't cascade.
             {
                 diagnostics.Add(ErrorCode.ERR_PartialMemberUnsafeDifference, implementation.GetFirstLocation());
             }

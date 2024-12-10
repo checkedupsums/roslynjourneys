@@ -52,11 +52,15 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private CSDiagnosticInfo GetUnsafeDiagnosticInfo(TypeSymbol sizeOfTypeOpt)
         {
+            /*if (this.Compilation.Options.AllowUnsafe)
+            {
+                return new CSDiagnosticInfo(ErrorCode.WRN_ErrorOverride, "Unsafe not needed with the allowunsafe flag enabled.");
+            }*/
             if (this.Flags.Includes(BinderFlags.SuppressUnsafeDiagnostics))
             {
                 return null;
             }
-            else if (!this.Compilation.Options.AllowUnsafe && !this.InUnsafeRegion)
+            else if (!this.InUnsafeRegion)
             {
                 return ((object)sizeOfTypeOpt == null)
                     ? new CSDiagnosticInfo(ErrorCode.ERR_UnsafeNeeded)
