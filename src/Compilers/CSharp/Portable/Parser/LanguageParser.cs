@@ -5685,7 +5685,7 @@ parse_member_name:;
         {
             if (this.IsIncrementalAndFactoryContextMatches && this.CurrentNodeKind == SyntaxKind.IdentifierName)
             {
-                if (!SyntaxFacts.IsContextualKeyword(((CSharp.Syntax.IdentifierNameSyntax)this.CurrentNode).Identifier.Kind()))
+                if (!SyntaxFacts.IsContextualKeyword(((Syntax.IdentifierNameSyntax)this.CurrentNode).Identifier.Kind()))
                 {
                     return (IdentifierNameSyntax)this.EatNode();
                 }
@@ -11575,6 +11575,11 @@ done:
 
                     switch (this.CurrentToken.Kind)
                     {
+                        case SyntaxKind.SemicolonToken when this.NextToken.Kind is SyntaxKind.SemicolonToken:
+                            if (expr is SimpleNameSyntax || expr is MemberAccessExpressionSyntax)
+                                expr = _syntaxFactory.InvocationExpression(expr, _syntaxFactory.ArgumentList(SyntaxFactory.MissingOpenParen, default, SyntaxFactory.MissingCloseParen));
+                            return expr;
+
                         case SyntaxKind.OpenParenToken:
                             expr = _syntaxFactory.InvocationExpression(expr, this.ParseParenthesizedArgumentList());
                             continue;
@@ -11593,9 +11598,7 @@ done:
                             {
                                 expr = _syntaxFactory.MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
-                                    expr,
-                                    // replace :: with missing dot and annotate with skipped text "::" and error
-                                    this.ConvertToMissingWithTrailingTrivia(this.AddError(this.EatToken(), ErrorCode.ERR_UnexpectedAliasedName), SyntaxKind.DotToken),
+                                    expr, this.EatToken(),
                                     this.ParseSimpleName(NameOptions.InExpression));
                             }
                             else

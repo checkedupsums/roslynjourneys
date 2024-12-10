@@ -28335,12 +28335,6 @@ internal partial class ContextAwareSyntax
 #if DEBUG
         if (expression == null) throw new ArgumentNullException(nameof(expression));
         if (operatorToken == null) throw new ArgumentNullException(nameof(operatorToken));
-        switch (operatorToken.Kind)
-        {
-            case SyntaxKind.DotToken:
-            case SyntaxKind.MinusGreaterThanToken: break;
-            default: throw new ArgumentException(nameof(operatorToken));
-        }
         if (name == null) throw new ArgumentNullException(nameof(name));
 #endif
 
