@@ -209,20 +209,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             Debug.Assert(_resetCount == point.ResetCount);
             _resetCount--;
             if (_resetCount == 0)
-            {
                 _resetStart = -1;
-            }
         }
 
-        public CSharpParseOptions Options
-        {
-            get { return this.lexer.Options; }
-        }
-
-        public bool IsScript
-        {
-            get { return Options.Kind == SourceCodeKind.Script; }
-        }
+        public CSharpParseOptions Options => this.lexer.Options;
+        public bool IsScript => Options.Kind == SourceCodeKind.Script;
 
         protected LexerMode Mode
         {
@@ -292,25 +283,16 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             get
             {
-                return _currentToken ??= this.FetchCurrentToken();
+                return _currentToken ??= FetchCurrentToken();
             }
         }
 
         private SyntaxToken FetchCurrentToken()
         {
             if (_tokenOffset >= _tokenCount)
-            {
-                this.AddNewToken();
-            }
+                AddNewToken();
 
-            if (_blendedTokens != null)
-            {
-                return _blendedTokens[_tokenOffset].Token;
-            }
-            else
-            {
-                return _lexedTokens[_tokenOffset];
-            }
+            return _blendedTokens is null ? _lexedTokens[_tokenOffset] : _blendedTokens[_tokenOffset].Token;
         }
 
         private void AddNewToken()
@@ -318,24 +300,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             if (_blendedTokens != null)
             {
                 if (_tokenCount > 0)
-                {
-                    this.AddToken(_blendedTokens[_tokenCount - 1].Blender.ReadToken(_mode));
-                }
+                    AddToken(_blendedTokens[_tokenCount - 1].Blender.ReadToken(_mode));
                 else
-                {
-                    if (_currentNode.Token != null)
-                    {
-                        this.AddToken(_currentNode);
-                    }
-                    else
-                    {
-                        this.AddToken(_firstBlender.ReadToken(_mode));
-                    }
-                }
+                    AddToken(_currentNode.Token is null ? _firstBlender.ReadToken(_mode) : _currentNode);
             }
             else
             {
-                this.AddLexedToken(this.lexer.Lex(_mode));
+                AddLexedToken(this.lexer.Lex(_mode));
             }
         }
 
