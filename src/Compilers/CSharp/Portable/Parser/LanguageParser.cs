@@ -7970,6 +7970,19 @@ done:
 
                 StatementSyntax result;
 
+                if (this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken)
+                {
+                    switch (this.CurrentToken.Kind)
+                    {
+                        case SyntaxKind.SafeKeyword:
+                        case SyntaxKind.UnsafeKeyword:
+                            return ParseUnsafeStatement(attributes);
+                        case SyntaxKind.ForKeyword:
+                            return _syntaxFactory.ForStatement(attributes, this.EatToken(), SyntaxFactory.MissingOpenParen, null, default, SyntaxFactory.MissingSemicolon, 
+                                null, SyntaxFactory.MissingSemicolon, default, SyntaxFactory.MissingCloseParen, ParseEmbeddedStatement());
+                    }
+                }
+
                 // Main switch to handle processing almost any statement.
                 switch (this.CurrentToken.Kind)
                 {
@@ -8008,8 +8021,6 @@ done:
                         return this.ParseSwitchStatement(attributes);
                     case SyntaxKind.ThrowKeyword:
                         return this.ParseThrowStatement(attributes);
-                    case SyntaxKind.UnsafeKeyword when this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken:
-                        return ParseUnsafeStatement(attributes); 
                     case SyntaxKind.UsingKeyword:
                         return ParseStatementStartingWithUsing(attributes);
                     case SyntaxKind.WhileKeyword:

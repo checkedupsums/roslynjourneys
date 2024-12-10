@@ -144,6 +144,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 : SyntaxToken.WithValue(kind, leading, text, valueText, trailing);
         }
 
+        internal static SyntaxToken MissingOpenParen => MissingToken(SyntaxKind.OpenParenToken);
+        internal static SyntaxToken MissingOpenBrace => MissingToken(SyntaxKind.OpenBraceToken);
+        internal static SyntaxToken MissingOpenBracket => MissingToken(SyntaxKind.OpenBracketToken);
+        internal static SyntaxToken MissingCloseBracket => MissingToken(SyntaxKind.CloseBracketToken);
+        internal static SyntaxToken MissingCloseBrace => MissingToken(SyntaxKind.CloseBraceToken);
+        internal static SyntaxToken MissingCloseParen => MissingToken(SyntaxKind.CloseParenToken);
+
+        internal static SyntaxToken MissingSemicolon => MissingToken(SyntaxKind.SemicolonToken);
+
         internal static SyntaxToken MissingToken(SyntaxKind kind)
         {
             return SyntaxToken.CreateMissing(kind);
