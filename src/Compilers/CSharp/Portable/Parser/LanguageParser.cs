@@ -8927,9 +8927,6 @@ done:
 
         private TryStatementSyntax ParseTryStatement(SyntaxList<AttributeListSyntax> attributes)
         {
-            Debug.Assert(this.CurrentToken.Kind is SyntaxKind.TryKeyword or SyntaxKind.CatchKeyword or SyntaxKind.FinallyKeyword);
-
-            // We are called into on try/catch/finally, so eating the try may actually fail.
             var @try = this.EatToken(SyntaxKind.TryKeyword);
 
             BlockSyntax tryBlock;
@@ -9548,9 +9545,9 @@ done:
             while (true)
             {
                 var ifKeyword = this.EatToken(SyntaxKind.IfKeyword);
-                var openParen = this.EatToken(SyntaxKind.OpenParenToken);
+                var openParen = this.EatMissingToken(SyntaxKind.OpenParenToken);
                 var condition = this.ParseExpressionCore();
-                var closeParen = this.EatToken(SyntaxKind.CloseParenToken);
+                var closeParen = this.ProduceMissingCongener(openParen, SyntaxKind.CloseParenToken);
                 var consequence = this.ParseEmbeddedStatement();
 
                 var elseKeyword = this.CurrentToken.Kind != SyntaxKind.ElseKeyword ?
