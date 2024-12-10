@@ -2513,6 +2513,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     {
                         switch (this.CurrentToken.Kind)
                         {
+                            case SyntaxKind.SafeKeyword:
                             case SyntaxKind.UnsafeKeyword:
                                 if (this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken)
                                 {
@@ -8140,7 +8141,7 @@ done:
 
         // Checking for brace to disambiguate between unsafe statement and unsafe local function
         private StatementSyntax TryParseStatementStartingWithUnsafe(SyntaxList<AttributeListSyntax> attributes)
-            => IsPossibleUnsafeStatement() ? ParseUnsafeStatement(attributes) : null;
+            => this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken ? ParseUnsafeStatement(attributes) : null;
 
         private bool IsPossibleAwaitUsing()
             => CurrentToken.ContextualKind == SyntaxKind.AwaitKeyword && PeekToken(1).Kind == SyntaxKind.UsingKeyword;
@@ -8148,11 +8149,6 @@ done:
         private bool IsPossibleLabeledStatement()
         {
             return this.PeekToken(1).Kind == SyntaxKind.ColonToken && this.IsTrueIdentifier();
-        }
-
-        private bool IsPossibleUnsafeStatement()
-        {
-            return this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken;
         }
 
         private bool IsPossibleYieldStatement()
@@ -9860,7 +9856,7 @@ done:
         {
             return _syntaxFactory.UnsafeStatement(
                 attributes,
-                this.EatToken(SyntaxKind.UnsafeKeyword),
+                this.EatToken(),
                 this.ParsePossiblyAttributedBlock());
         }
 
