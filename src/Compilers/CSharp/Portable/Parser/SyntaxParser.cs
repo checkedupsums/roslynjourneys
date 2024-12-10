@@ -463,37 +463,31 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
+        protected SyntaxToken NextToken => PeekToken(1);
+
         protected SyntaxToken PeekToken(int n)
         {
             Debug.Assert(n >= 0);
             while (_tokenOffset + n >= _tokenCount)
-            {
                 this.AddNewToken();
-            }
 
             if (_blendedTokens != null)
-            {
                 return _blendedTokens[_tokenOffset + n].Token;
-            }
             else
-            {
                 return _lexedTokens[_tokenOffset + n];
-            }
         }
 
-        //this method is called very frequently
-        //we should keep it simple so that it can be inlined.
-        protected SyntaxToken EatToken()
+        protected SyntaxToken EatToken(SyntaxKind kind = SyntaxKind.None)
         {
             var ct = this.CurrentToken;
-            MoveToNextToken();
-            return ct;
+            if (kind is SyntaxKind.None || ct.Kind == kind)
+            {
+                MoveToNextToken();
+                return ct;
+            }
+            return CreateMissingToken(kind, this.CurrentToken.Kind, reportError: true);
         }
-
-        /// <summary>
-        /// Returns and consumes the current token if it has the requested <paramref name="kind"/>.
-        /// Otherwise, returns <see langword="null"/>.
-        /// </summary>
+        /// <summary> Returns and consumes the current token if it has the requested <paramref name="kind"/>. Otherwise, returns <see langword="null"/>. </summary>
         protected SyntaxToken TryEatToken(SyntaxKind kind)
             => this.CurrentToken.Kind == kind ? this.EatToken() : null;
 
@@ -505,7 +499,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             if (_blendedTokens != null)
             {
-                _currentNode = default(BlendedNode);
+                _currentNode = default;
             }
 
             _tokenOffset++;
@@ -514,23 +508,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         protected void ForceEndOfFile()
         {
             _currentToken = SyntaxFactory.Token(SyntaxKind.EndOfFileToken);
-        }
-
-        //this method is called very frequently
-        //we should keep it simple so that it can be inlined.
-        protected SyntaxToken EatToken(SyntaxKind kind)
-        {
-            Debug.Assert(SyntaxFacts.IsAnyToken(kind));
-
-            var ct = this.CurrentToken;
-            if (ct.Kind == kind)
-            {
-                MoveToNextToken();
-                return ct;
-            }
-
-            //slow part of EatToken(SyntaxKind kind)
-            return CreateMissingToken(kind, this.CurrentToken.Kind, reportError: true);
         }
 
         // Consume a token if it is the right kind. Otherwise skip a token and replace it with one of the correct kind.
@@ -572,6 +549,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             return token;
         }
+
+        protected SyntaxToken EatMissingToken(SyntaxKind kind)
+            => this.CurrentToken.Kind == kind ? this.EatToken() : SyntaxFactory.MissingToken(kind);
 
         protected SyntaxToken EatToken(SyntaxKind kind, bool reportError)
         {

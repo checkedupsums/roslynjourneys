@@ -8969,13 +8969,11 @@ done:
                     this.EatToken(),
                     this.ParsePossiblyAttributedBlock());
             }
-
-            if (catchClauses.IsNull)
+            else if (catchClauses.IsNull)
             {
-                // synthesize missing tokens for "finally { }":
-                finallyClause ??= _syntaxFactory.FinallyClause(
-                    SyntaxFactory.MissingToken(SyntaxKind.FinallyKeyword),
-                    missingBlock());
+                finallyClause = _syntaxFactory.FinallyClause(
+                        SyntaxFactory.MissingToken(SyntaxKind.FinallyKeyword),
+                        missingBlock());
             }
 
             return _syntaxFactory.TryStatement(
