@@ -153,6 +153,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         internal static SyntaxToken MissingSemicolon => MissingToken(SyntaxKind.SemicolonToken);
 
+        internal static bool MissingToken(out SyntaxToken token, SyntaxKind kind, bool _out)
+        {
+            token = SyntaxFactory.MissingToken(kind);
+            return _out;
+        }
+
         internal static SyntaxToken MissingToken(SyntaxKind kind)
         {
             return SyntaxToken.CreateMissing(kind);

@@ -607,7 +607,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         // Help out in the case where a user is converting a switch statement to a switch expression.
                         // Consume the `:` as a `=>` and report an error.
                         this.CurrentToken.Kind == SyntaxKind.ColonToken
-                            ? this.EatTokenAsKind(SyntaxKind.EqualsGreaterThanToken)
+                            ? this.EatTokenAsIfKind(SyntaxKind.EqualsGreaterThanToken)
                             : this.EatToken(SyntaxKind.EqualsGreaterThanToken),
                         ParseExpressionCore());
 
@@ -622,7 +622,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     if (this.CurrentToken.Kind != SyntaxKind.CloseBraceToken)
                     {
                         var commaToken = this.CurrentToken.Kind == SyntaxKind.SemicolonToken
-                            ? this.EatTokenAsKind(SyntaxKind.CommaToken)
+                            ? this.EatTokenAsIfKind(SyntaxKind.CommaToken)
                             : this.EatToken(SyntaxKind.CommaToken);
                         arms.AddSeparator(commaToken);
                     }

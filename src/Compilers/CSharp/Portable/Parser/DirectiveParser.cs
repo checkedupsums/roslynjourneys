@@ -241,7 +241,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 keyword = this.AddError(keyword, ErrorCode.ERR_PPDefFollowsToken);
             }
 
-            var name = this.EatToken(SyntaxKind.IdentifierToken, ErrorCode.ERR_IdentifierExpected);
+            var name = this.TryEatTokenOrError(SyntaxKind.IdentifierToken, ErrorCode.ERR_IdentifierExpected);
             name = TruncateIdentifier(name);
             var end = this.ParseEndOfDirective(ignoreErrors: name.IsMissing);
             if (keyword.Kind == SyntaxKind.DefineKeyword)
@@ -370,7 +370,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     line = this.EatToken();
                     break;
                 default:
-                    line = this.EatToken(SyntaxKind.NumericLiteralToken, ErrorCode.ERR_InvalidLineNumber, reportError: isActive);
+                    line = this.TryEatTokenOrError(SyntaxKind.NumericLiteralToken, ErrorCode.ERR_InvalidLineNumber, reportError: isActive);
                     sawLineButNotFile = true; //assume this is the case until we (potentially) see the file name below
                     if (isActive && !line.IsMissing && line.Kind == SyntaxKind.NumericLiteralToken)
                     {
@@ -428,7 +428,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 characterOffset = this.AddError(characterOffset, ErrorCode.ERR_LineSpanDirectiveRequiresSpace);
             }
 
-            var file = EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_MissingPPFile, reportError: reportError);
+            var file = TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.ERR_MissingPPFile, reportError: reportError);
             if (file.IsMissing) reportError = false;
 
             if (noTriviaBetween(characterOffset ?? end.GetLastToken(), file))
@@ -467,7 +467,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         private SyntaxToken ParseLineDirectiveNumericLiteral(ref bool reportError, int minValue, int maxValue, out int value)
         {
-            var token = this.EatToken(SyntaxKind.NumericLiteralToken, ErrorCode.ERR_LineSpanDirectiveInvalidValue, reportError: reportError);
+            var token = this.TryEatTokenOrError(SyntaxKind.NumericLiteralToken, ErrorCode.ERR_LineSpanDirectiveInvalidValue, reportError: reportError);
             value = 0;
             if (token.IsMissing)
             {
@@ -499,7 +499,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
             }
 
-            SyntaxToken file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
+            SyntaxToken file = this.TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
 
             var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
             return SyntaxFactory.ReferenceDirectiveTrivia(hash, keyword, file, end, isActive);
@@ -519,7 +519,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
             }
 
-            SyntaxToken file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
+            SyntaxToken file = this.TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.ERR_ExpectedPPFile, reportError: isActive);
 
             var end = this.ParseEndOfDirective(ignoreErrors: file.IsMissing || !isActive);
             return SyntaxFactory.LoadDirectiveTrivia(hash, keyword, file, end, isActive);
@@ -537,7 +537,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 SyntaxKind.EnableKeyword => EatToken(),
                 SyntaxKind.DisableKeyword => EatToken(),
                 SyntaxKind.RestoreKeyword => EatToken(),
-                _ => EatToken(SyntaxKind.DisableKeyword, ErrorCode.ERR_NullableDirectiveQualifierExpected, reportError: isActive)
+                _ => TryEatTokenOrError(SyntaxKind.DisableKeyword, ErrorCode.ERR_NullableDirectiveQualifierExpected, reportError: isActive)
             };
 
             SyntaxToken target = this.CurrentToken.Kind switch
@@ -546,7 +546,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 SyntaxKind.AnnotationsKeyword => EatToken(),
                 SyntaxKind.EndOfDirectiveToken => null,
                 SyntaxKind.EndOfFileToken => null,
-                _ => EatToken(SyntaxKind.WarningsKeyword, ErrorCode.ERR_NullableDirectiveTargetExpected, reportError: !setting.IsMissing && isActive)
+                _ => TryEatTokenOrError(SyntaxKind.WarningsKeyword, ErrorCode.ERR_NullableDirectiveTargetExpected, reportError: !setting.IsMissing && isActive)
             };
 
             var end = this.ParseEndOfDirective(ignoreErrors: setting.IsMissing || target?.IsMissing == true || !isActive);
@@ -601,7 +601,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         }
                         else
                         {
-                            id = this.EatToken(SyntaxKind.NumericLiteralToken, ErrorCode.WRN_IdentifierOrNumericLiteralExpected, reportError: isActive);
+                            id = this.TryEatTokenOrError(SyntaxKind.NumericLiteralToken, ErrorCode.WRN_IdentifierOrNumericLiteralExpected, reportError: isActive);
                             idExpression = SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, id);
                         }
 
@@ -621,7 +621,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
                 else
                 {
-                    style = this.EatToken(SyntaxKind.DisableKeyword, ErrorCode.WRN_IllegalPPWarning, reportError: isActive);
+                    style = this.TryEatTokenOrError(SyntaxKind.DisableKeyword, ErrorCode.WRN_IllegalPPWarning, reportError: isActive);
                     var end = this.ParseEndOfDirective(ignoreErrors: true, afterPragma: true);
                     return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default(SeparatedSyntaxList<ExpressionSyntax>), end, isActive);
                 }
@@ -629,8 +629,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             else if (this.CurrentToken.Kind == SyntaxKind.ChecksumKeyword)
             {
                 var checksum = this.EatToken();
-                var file = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive);
-                var guid = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive && !file.IsMissing);
+                var file = this.TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive);
+                var guid = this.TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive && !file.IsMissing);
                 if (isActive && !guid.IsMissing)
                 {
                     Guid tmp;
@@ -640,7 +640,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     }
                 }
 
-                var bytes = this.EatToken(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive && !guid.IsMissing);
+                var bytes = this.TryEatTokenOrError(SyntaxKind.StringLiteralToken, ErrorCode.WRN_IllegalPPChecksum, reportError: isActive && !guid.IsMissing);
                 if (isActive && !bytes.IsMissing)
                 {
                     if (bytes.ValueText.Length % 2 != 0)
@@ -666,7 +666,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
             else
             {
-                var warning = this.EatToken(SyntaxKind.WarningKeyword, ErrorCode.WRN_IllegalPragma, reportError: isActive);
+                var warning = this.TryEatTokenOrError(SyntaxKind.WarningKeyword, ErrorCode.WRN_IllegalPragma, reportError: isActive);
                 var style = this.EatToken(SyntaxKind.DisableKeyword, reportError: false);
                 var eod = this.ParseEndOfDirective(ignoreErrors: true, afterPragma: true);
                 return SyntaxFactory.PragmaWarningDirectiveTrivia(hash, pragma, warning, style, default(SeparatedSyntaxList<ExpressionSyntax>), eod, isActive);
@@ -802,7 +802,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 case SyntaxKind.FalseKeyword:
                     return SyntaxFactory.LiteralExpression(SyntaxFacts.GetLiteralExpression(k), this.EatToken());
                 default:
-                    return SyntaxFactory.IdentifierName(this.EatToken(SyntaxKind.IdentifierToken, ErrorCode.ERR_InvalidPreprocExpr));
+                    return SyntaxFactory.IdentifierName(this.TryEatTokenOrError(SyntaxKind.IdentifierToken, ErrorCode.ERR_InvalidPreprocExpr));
             }
         }
 

@@ -3333,7 +3333,7 @@ parse_member_name:;
             }
             else
             {
-                token = this.EatToken(SyntaxKind.ThisKeyword, ErrorCode.ERR_ThisOrBaseExpected);
+                token = this.TryEatTokenOrError(SyntaxKind.ThisKeyword, ErrorCode.ERR_ThisOrBaseExpected);
 
                 // No need to report further errors at this point:
                 reportError = false;
@@ -4393,7 +4393,7 @@ parse_member_name:;
             var accAttrs = this.ParseAttributeDeclarations(inExpressionContext: false);
             this.ParseModifiers(accMods, forAccessors: true, forTopLevelStatements: false, isPossibleTypeDeclaration: out _);
 
-            var accessorName = this.EatToken(SyntaxKind.IdentifierToken,
+            var accessorName = this.TryEatTokenOrError(SyntaxKind.IdentifierToken,
                 declaringKind == AccessorDeclaringKind.Event ? ErrorCode.ERR_AddOrRemoveExpected : ErrorCode.ERR_GetOrSetExpected);
             var accessorKind = GetAccessorKind(accessorName);
 
@@ -4479,7 +4479,7 @@ parse_member_name:;
         }
 
         private SyntaxToken EatAccessorSemicolon()
-            => this.EatToken(SyntaxKind.SemicolonToken,
+            => this.TryEatTokenOrError(SyntaxKind.SemicolonToken,
                 IsFeatureEnabled(MessageID.IDS_FeatureExpressionBodiedAccessor)
                     ? ErrorCode.ERR_SemiOrLBraceOrArrowExpected
                     : ErrorCode.ERR_SemiOrLBraceExpected);
@@ -7179,7 +7179,7 @@ done:
 
             if (!validStartingToken && CurrentToken.Kind == SyntaxKind.CloseParenToken)
             {
-                lastTokenOfType = EatTokenAsKind(SyntaxKind.GreaterThanToken);
+                lastTokenOfType = EatTokenAsIfKind(SyntaxKind.GreaterThanToken);
             }
             else
             {
@@ -7705,7 +7705,7 @@ done:
                         TryEatToken(SyntaxKind.GreaterThanToken) ?? SyntaxFactory.MissingToken(SyntaxKind.GreaterThanToken)));
             }
 
-            var lessThanToken = EatTokenAsKind(SyntaxKind.LessThanToken);
+            var lessThanToken = EatTokenAsIfKind(SyntaxKind.LessThanToken);
             var saveTerm = _termState;
             _termState |= (lessThanToken.IsMissing ? TerminatorState.IsEndOfFunctionPointerParameterListErrored : TerminatorState.IsEndOfFunctionPointerParameterList);
             var types = _pool.AllocateSeparated<FunctionPointerParameterSyntax>();
@@ -7740,7 +7740,7 @@ done:
                         lessThanToken,
                         _pool.ToListAndFree(types),
                         lessThanToken.IsMissing && CurrentToken.Kind == SyntaxKind.CloseParenToken
-                            ? EatTokenAsKind(SyntaxKind.GreaterThanToken)
+                            ? EatTokenAsIfKind(SyntaxKind.GreaterThanToken)
                             : EatToken(SyntaxKind.GreaterThanToken)));
             }
             finally
@@ -7775,12 +7775,12 @@ done:
 
                         case var _ when IsPossibleFunctionPointerParameterListStart(peek1):
                             // If there's a possible parameter list next, treat this as a bad identifier that should have been managed or unmanaged
-                            managedSpecifier = EatTokenAsKind(SyntaxKind.ManagedKeyword);
+                            managedSpecifier = EatTokenAsIfKind(SyntaxKind.ManagedKeyword);
                             break;
 
                         case var _ when peek1.Kind == SyntaxKind.OpenBracketToken:
                             // If there's an open brace next, treat this as a bad identifier that should have been unmanaged
-                            managedSpecifier = EatTokenAsKind(SyntaxKind.UnmanagedKeyword);
+                            managedSpecifier = EatTokenAsIfKind(SyntaxKind.UnmanagedKeyword);
                             break;
 
                         default:
@@ -8963,6 +8963,8 @@ done:
                 }
             }
 
+            var finallyKeyword = 
+
             if (this.CurrentToken.Kind == SyntaxKind.FinallyKeyword)
             {
                 finallyClause = _syntaxFactory.FinallyClause(
@@ -9248,7 +9250,7 @@ done:
 
             SyntaxToken eatCommaOrSemicolon()
                 => this.CurrentToken.Kind is SyntaxKind.CommaToken
-                    ? this.EatTokenAsKind(SyntaxKind.SemicolonToken)
+                    ? this.EatTokenAsIfKind(SyntaxKind.SemicolonToken)
                     : this.EatToken(SyntaxKind.SemicolonToken);
 
             SyntaxToken eatUnexpectedTokensAndCloseParenToken()
@@ -9323,7 +9325,7 @@ done:
             var openParen = this.EatToken(SyntaxKind.OpenParenToken);
 
             var variable = ParseExpressionOrDeclaration(ParseTypeMode.Normal, permitTupleDesignation: true);
-            var @in = this.EatToken(SyntaxKind.InKeyword, ErrorCode.ERR_InExpected);
+            var @in = this.TryEatTokenOrError(SyntaxKind.InKeyword, ErrorCode.ERR_InExpected);
             if (!IsValidForeachVariable(variable))
             {
                 @in = this.AddError(@in, ErrorCode.ERR_BadForeachDecl);
@@ -9617,7 +9619,7 @@ done:
 
             return _syntaxFactory.IfStatement(
                 attributes,
-                this.EatToken(SyntaxKind.IfKeyword, ErrorCode.ERR_ElseCannotStartStatement),
+                this.TryEatTokenOrError(SyntaxKind.IfKeyword, ErrorCode.ERR_ElseCannotStartStatement),
                 this.EatToken(SyntaxKind.OpenParenToken),
                 this.ParseExpressionCore(),
                 this.EatToken(SyntaxKind.CloseParenToken),
@@ -11913,7 +11915,7 @@ done:
 
             // convert `[` into `(` or vice versa for error recovery
             openToken = this.CurrentToken.Kind is SyntaxKind.OpenParenToken or SyntaxKind.OpenBracketToken
-                ? this.EatTokenAsKind(openKind)
+                ? this.EatTokenAsIfKind(openKind)
                 : this.EatToken(openKind);
 
             var saveTerm = _termState;
@@ -11964,7 +11966,7 @@ done:
 
             // convert `]` into `)` or vice versa for error recovery
             closeToken = this.CurrentToken.Kind is SyntaxKind.CloseParenToken or SyntaxKind.CloseBracketToken
-                ? this.EatTokenAsKind(closeKind)
+                ? this.EatTokenAsIfKind(closeKind)
                 : this.EatToken(closeKind);
 
             return;
@@ -12853,7 +12855,7 @@ done:
             if (argumentList == null && initializer == null)
             {
                 argumentList = _syntaxFactory.ArgumentList(
-                    this.EatToken(SyntaxKind.OpenParenToken, ErrorCode.ERR_BadNewExpr, reportError: type?.ContainsDiagnostics == false),
+                    this.TryEatTokenOrError(SyntaxKind.OpenParenToken, ErrorCode.ERR_BadNewExpr, reportError: type?.ContainsDiagnostics == false),
                     default(SeparatedSyntaxList<ArgumentSyntax>),
                     SyntaxFactory.MissingToken(SyntaxKind.CloseParenToken));
             }
@@ -13338,7 +13340,7 @@ done:
                     // Unparenthesized lambda case
                     // x => ...
                     var identifier = (this.CurrentToken.Kind != SyntaxKind.IdentifierToken && this.PeekToken(1).Kind == SyntaxKind.EqualsGreaterThanToken)
-                        ? this.EatTokenAsKind(SyntaxKind.IdentifierToken)
+                        ? this.EatTokenAsIfKind(SyntaxKind.IdentifierToken)
                         : this.ParseIdentifierToken();
 
                     // Case x=>, x =>
@@ -13641,7 +13643,7 @@ done:
                 SyntaxKind.SelectKeyword => this.ParseSelectClause(),
                 SyntaxKind.GroupKeyword => this.ParseGroupClause(),
                 _ => _syntaxFactory.SelectClause(
-                    this.EatToken(SyntaxKind.SelectKeyword, ErrorCode.ERR_ExpectedSelectOrGroup),
+                    this.TryEatTokenOrError(SyntaxKind.SelectKeyword, ErrorCode.ERR_ExpectedSelectOrGroup),
                     this.CreateMissingIdentifierName()),
             };
 
