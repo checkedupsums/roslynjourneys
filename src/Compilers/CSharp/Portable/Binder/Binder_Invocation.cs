@@ -181,7 +181,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// </summary>
         private BoundExpression BindInvocationExpression(
             InvocationExpressionSyntax node,
-            BindingDiagnosticBag diagnostics)
+            BindingDiagnosticBag diagnostics,
+            TypeSymbol lefthandType = null)
         {
             BoundExpression result;
             if (TryBindNameofOperator(node, diagnostics, out result))
@@ -245,7 +246,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 boundExpression = CheckValue(boundExpression, BindValueKind.RValueOrMethodGroup, diagnostics);
                 string name = boundExpression.Kind == BoundKind.MethodGroup ? GetName(node.Expression) : null;
                 BindArgumentsAndNames(node.ArgumentList, diagnostics, analyzedArguments, allowArglist: true);
-                return BindInvocationExpression(node, node.Expression, name, boundExpression, analyzedArguments, diagnostics);
+                return BindInvocationExpression(node, node.Expression, name, boundExpression, analyzedArguments, diagnostics, lefthandType: lefthandType);
             }
 
             static bool receiverIsInvocation(InvocationExpressionSyntax node, out InvocationExpressionSyntax nested)
@@ -326,7 +327,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             BindingDiagnosticBag diagnostics,
             CSharpSyntaxNode queryClause = null,
             bool ignoreNormalFormIfHasValidParamsParameter = false,
-            bool disallowExpandedNonArrayParams = false)
+            bool disallowExpandedNonArrayParams = false,
+            TypeSymbol lefthandType = null)
         {
             //
             // !!! ATTENTION !!!
@@ -355,7 +357,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     diagnostics, queryClause,
                     ignoreNormalFormIfHasValidParamsParameter: ignoreNormalFormIfHasValidParamsParameter,
                     disallowExpandedNonArrayParams: disallowExpandedNonArrayParams,
-                    anyApplicableCandidates: out _);
+                    anyApplicableCandidates: out _, lefthandType: lefthandType);
             }
             else if ((object)(delegateType = GetDelegateType(boundExpression)) != null)
             {
@@ -696,7 +698,8 @@ namespace Microsoft.CodeAnalysis.CSharp
             CSharpSyntaxNode queryClause,
             bool ignoreNormalFormIfHasValidParamsParameter,
             out bool anyApplicableCandidates,
-            bool disallowExpandedNonArrayParams = false)
+            bool disallowExpandedNonArrayParams = false,
+            TypeSymbol lefthandType = null)
         {
             //
             // !!! ATTENTION !!!
@@ -713,7 +716,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 useSiteInfo: ref useSiteInfo,
                 options: (ignoreNormalFormIfHasValidParamsParameter ? OverloadResolution.Options.IgnoreNormalFormIfHasValidParamsParameter : OverloadResolution.Options.None) |
                          (disallowExpandedNonArrayParams ? OverloadResolution.Options.DisallowExpandedNonArrayParams : OverloadResolution.Options.None) |
-                         (analyzedArguments.HasDynamicArgument ? OverloadResolution.Options.DynamicResolution : OverloadResolution.Options.None));
+                         (analyzedArguments.HasDynamicArgument ? OverloadResolution.Options.DynamicResolution : OverloadResolution.Options.None),
+                returnType: lefthandType);
             diagnostics.Add(expression, useSiteInfo);
             anyApplicableCandidates = resolution.ResultKind == LookupResultKind.Viable && resolution.OverloadResolutionResult.HasAnyApplicableMember;
 

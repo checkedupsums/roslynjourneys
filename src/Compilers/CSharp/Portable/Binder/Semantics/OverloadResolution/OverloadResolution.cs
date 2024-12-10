@@ -449,11 +449,8 @@ namespace Microsoft.CodeAnalysis.CSharp
                 RemoveStaticInstanceMismatches(results, arguments, receiver);
 
                 RemoveConstraintViolations(results, template: new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo));
-
-                if ((options & Options.IsMethodGroupConversion) != 0)
-                {
-                    RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0);
-                }
+                //if ((options & Options.IsMethodGroupConversion) != 0) << Excuse me, what the fuck?
+                RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0);
             }
 
             if ((options & Options.IsFunctionPointerResolution) != 0)

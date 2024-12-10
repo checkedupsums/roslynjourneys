@@ -233,9 +233,9 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// did not meet the requirements, the return value will be a <see cref="BoundBadExpression"/> that
         /// (typically) wraps the subexpression.
         /// </summary>
-        internal BoundExpression BindValue(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind)
+        internal BoundExpression BindValue(ExpressionSyntax node, BindingDiagnosticBag diagnostics, BindValueKind valueKind, TypeSymbol lefthandType = null)
         {
-            var result = this.BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false);
+            var result = this.BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false, lefthandType);
             return CheckValue(result, valueKind, diagnostics);
         }
 
@@ -531,9 +531,9 @@ namespace Microsoft.CodeAnalysis.CSharp
             return BindExpression(node, diagnostics: diagnostics, invoked: false, indexed: false);
         }
 
-        protected BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed)
+        protected BoundExpression BindExpression(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed, TypeSymbol lefthandType = null)
         {
-            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked, indexed);
+            BoundExpression expr = BindExpressionInternal(node, diagnostics, invoked, indexed, lefthandType);
             CheckContextForPointerTypes(node, diagnostics, expr);
 
             if (expr.Kind == BoundKind.ArgListOperator)
@@ -569,7 +569,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             }
         }
 
-        private BoundExpression BindExpressionInternal(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed)
+        private BoundExpression BindExpressionInternal(ExpressionSyntax node, BindingDiagnosticBag diagnostics, bool invoked, bool indexed, TypeSymbol lefthandType = null)
         {
             if (IsEarlyAttributeBinder && !EarlyWellKnownAttributeBinder.CanBeValidAttributeArgument(node))
             {
@@ -601,7 +601,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                     case SyntaxKind.FieldExpression:
                         return BindFieldExpression((FieldExpressionSyntax)node, diagnostics);
                     case SyntaxKind.InvocationExpression:
-                        return BindInvocationExpression((InvocationExpressionSyntax)node, diagnostics);
+                        return BindInvocationExpression((InvocationExpressionSyntax)node, diagnostics, lefthandType);
                     case SyntaxKind.ArrayInitializerExpression:
                         return BindUnexpectedArrayInitializer((InitializerExpressionSyntax)node, diagnostics, ErrorCode.ERR_ArrayInitInBadPlace);
                     case SyntaxKind.ArrayCreationExpression:
