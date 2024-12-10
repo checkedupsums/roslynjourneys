@@ -9528,8 +9528,8 @@ done:
                 kind = SyntaxKind.GotoStatement;
                 arg = this.ParseIdentifierName();
             }
-
-            return _syntaxFactory.GotoStatement(kind, attributes, @goto, caseOrDefault, arg, this.EatMissingToken(SyntaxKind.SemicolonToken, isConditionalTryEatMissing));
+            var token = isConditionalTryEatMissing && this.CurrentToken.Kind is SyntaxKind.ElseKeyword ? SyntaxFactory.MissingSemicolon : this.EatToken(SyntaxKind.SemicolonToken);
+            return _syntaxFactory.GotoStatement(kind, attributes, @goto, caseOrDefault, arg, token);
         }
 
         private IfStatementSyntax ParseIfStatement(SyntaxList<AttributeListSyntax> attributes)
