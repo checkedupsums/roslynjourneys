@@ -53,23 +53,23 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             IEnumerable<TextChangeRange> changes,
             bool allowModeReset,
             bool preLexIfNotIncremental = false,
-            CancellationToken cancellationToken = default(CancellationToken))
+            CancellationToken cancellationToken = default)
         {
             this.lexer = lexer;
             _mode = mode;
             _allowModeReset = allowModeReset;
             this.cancellationToken = cancellationToken;
-            _currentNode = default(BlendedNode);
+            _currentNode = default;
             _isIncremental = oldTree != null;
 
-            if (this.IsIncremental || allowModeReset)
+            if (IsIncremental || allowModeReset)
             {
-                _firstBlender = new Blender(lexer, oldTree, changes);
+                _firstBlender = new(lexer, oldTree, changes);
                 _blendedTokens = s_blendedNodesPool.Allocate();
             }
             else
             {
-                _firstBlender = default(Blender);
+                _firstBlender = default;
                 _lexedTokens = s_lexedTokensPool.Allocate();
             }
 
@@ -78,9 +78,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             //      Cancellations in a constructor make disposing complicated
             //
             // So, if we have a real cancellation token, do not do prelexing.
-            if (preLexIfNotIncremental && !this.IsIncremental && !cancellationToken.CanBeCanceled)
+            if (preLexIfNotIncremental && !IsIncremental && !cancellationToken.CanBeCanceled)
             {
-                this.PreLex();
+                PreLex();
             }
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             var blendedTokens = _blendedTokens;
             if (blendedTokens != null)
             {
-                _blendedTokens = null;
+                _blendedTokens = null!;
                 if (blendedTokens.Length < 4096)
                 {
                     Array.Clear(blendedTokens, 0, blendedTokens.Length);
@@ -104,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             var lexedTokens = _lexedTokens;
             if (lexedTokens != null)
             {
-                _lexedTokens = null;
+                _lexedTokens = null!;
 
                 ReturnLexedTokensToPool(lexedTokens);
             }
@@ -117,8 +117,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             _tokenCount = 0;
             _resetCount = 0;
             _resetStart = 0;
-            _currentToken = null;
-            _prevTokenTrailingTrivia = null;
+            _currentToken = null!;
+            _prevTokenTrailingTrivia = null!;
             if (this.IsIncremental || _allowModeReset)
             {
                 _firstBlender = new Blender(this.lexer, oldTree: null, changes: null);
@@ -182,8 +182,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             _mode = point.Mode;
             Debug.Assert(offset >= 0 && offset < _tokenCount);
             _tokenOffset = offset;
-            _currentToken = null;
-            _currentNode = default(BlendedNode);
+            _currentToken = null!;
+            _currentNode = default;
             _prevTokenTrailingTrivia = point.PrevTokenTrailingTrivia;
             if (_blendedTokens != null)
             {
@@ -226,10 +226,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         protected LexerMode Mode
         {
-            get
-            {
-                return _mode;
-            }
+            get => _mode;
 
             set
             {
@@ -238,8 +235,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     Debug.Assert(_allowModeReset);
 
                     _mode = value;
-                    _currentToken = null;
-                    _currentNode = default(BlendedNode);
+                    _currentToken = null!;
+                    _currentNode = default;
                     _tokenCount = _tokenOffset;
                 }
             }
@@ -257,9 +254,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 // we only need .Node
                 var node = _currentNode.Node;
                 if (node != null)
-                {
                     return node;
-                }
 
                 this.ReadCurrentNode();
                 return _currentNode.Node;
@@ -305,8 +300,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             _tokenCount = _tokenOffset; // forget anything after this slot
 
             // erase current state
-            _currentNode = default(BlendedNode);
-            _currentToken = null;
+            _currentNode = default;
+            _currentToken = null!;
 
             return result;
         }
@@ -486,13 +481,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return TokenOrExpectedDiagnostics(SyntaxFactory.MissingToken(kind), this.CurrentToken.Kind, reportError: true);
         }
         /// <summary> Returns and consumes the current token if it has the requested <paramref name="kind"/>. Otherwise, returns <see langword="null"/>. </summary>
-        protected SyntaxToken TryEatToken(SyntaxKind kind)
+        protected SyntaxToken? TryEatToken(SyntaxKind kind)
             => this.CurrentToken.Kind == kind ? this.EatToken() : null;
 
         private void MoveToNextToken()
         {
             _prevTokenTrailingTrivia = _currentToken.GetTrailingTrivia();
-            _currentToken = null;
+            _currentToken = null!;
 
             if (_blendedTokens != null)
                 _currentNode = default;
@@ -714,13 +709,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         protected TNode AddError<TNode>(TNode node, ErrorCode code, params object[] args) where TNode : GreenNode
         {
             if (!node.IsMissing)
-            {
                 return WithAdditionalDiagnostics(node, MakeError(node, code, args));
-            }
 
             int offset, width;
 
-            SyntaxToken token = node as SyntaxToken;
+            SyntaxToken token = (node as SyntaxToken)!;
             if (token != null && token.ContainsSkippedText)
             {
                 // This code exists to clean up an anti-pattern:
@@ -737,26 +730,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 width = 0;
                 bool seenSkipped = false;
                 foreach (var trivia in token.TrailingTrivia)
-                {
                     if (trivia.Kind == SyntaxKind.SkippedTokensTrivia)
                     {
                         seenSkipped = true;
                         width += trivia.Width;
                     }
                     else if (seenSkipped)
-                    {
                         break;
-                    }
                     else
-                    {
                         offset += trivia.Width;
-                    }
-                }
             }
             else
-            {
                 this.GetDiagnosticSpanForMissingToken(out offset, out width);
-            }
 
             return WithAdditionalDiagnostics(node, MakeError(offset, width, code, args));
         }
