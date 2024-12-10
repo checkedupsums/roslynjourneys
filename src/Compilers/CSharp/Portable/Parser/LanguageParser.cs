@@ -9502,11 +9502,9 @@ done:
             }
         }
 
-        private GotoStatementSyntax ParseGotoStatement(SyntaxList<AttributeListSyntax> attributes)
+        private GotoStatementSyntax ParseGotoStatement(SyntaxList<AttributeListSyntax> attributes, bool isConditionalTryEatMissing = false)
         {
-            Debug.Assert(this.CurrentToken.Kind == SyntaxKind.GotoKeyword);
-
-            var @goto = this.EatToken(SyntaxKind.GotoKeyword);
+            var @goto = this.EatToken();
 
             SyntaxToken caseOrDefault = null;
             ExpressionSyntax arg = null;
@@ -9531,8 +9529,7 @@ done:
                 arg = this.ParseIdentifierName();
             }
 
-            return _syntaxFactory.GotoStatement(
-                kind, attributes, @goto, caseOrDefault, arg, this.EatToken(SyntaxKind.SemicolonToken));
+            return _syntaxFactory.GotoStatement(kind, attributes, @goto, caseOrDefault, arg, this.EatMissingToken(SyntaxKind.SemicolonToken, isConditionalTryEatMissing));
         }
 
         private IfStatementSyntax ParseIfStatement(SyntaxList<AttributeListSyntax> attributes)
@@ -9548,7 +9545,14 @@ done:
                 var openParen = this.EatMissingToken(SyntaxKind.OpenParenToken);
                 var condition = this.ParseExpressionCore();
                 var closeParen = this.ProduceMissingCongener(openParen, SyntaxKind.CloseParenToken);
-                var consequence = this.ParseEmbeddedStatement();
+
+                StatementSyntax consequence;
+
+                if (this.CurrentToken.Kind is SyntaxKind.GotoKeyword)
+                {
+                    consequence = this.ParseGotoStatement(ParseStatementAttributeDeclarations(), true);
+                } else
+                consequence = this.ParseEmbeddedStatement();
 
                 var elseKeyword = this.CurrentToken.Kind != SyntaxKind.ElseKeyword ?
                     null :
