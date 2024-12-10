@@ -315,9 +315,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             Debug.Assert(tokenResult.Token != null);
             if (_tokenCount >= _blendedTokens.Length)
-            {
                 this.AddTokenSlot();
-            }
 
             _blendedTokens[_tokenCount] = tokenResult;
             _tokenCount++;
@@ -466,7 +464,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         private SyntaxToken TokenOrExpectedDiagnostics(SyntaxToken token, SyntaxKind actual, bool reportError)
             => reportError ? WithAdditionalDiagnostics(token, this.GetExpectedTokenError(token.Kind, actual)) : token;
 
-        private SyntaxToken TryEatTokenOrError(SyntaxKind expected, ErrorCode code, bool reportError = true)
+        protected SyntaxToken TryEatTokenOrError(SyntaxKind expected, ErrorCode code, bool reportError = true)
         {
             var tok = EatMissingToken(expected);
             return reportError ? AddError(tok, code) : tok;

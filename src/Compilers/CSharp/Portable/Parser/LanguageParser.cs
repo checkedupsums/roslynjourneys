@@ -8953,7 +8953,6 @@ done:
             }
 
             SyntaxListBuilder<CatchClauseSyntax> catchClauses = default;
-            FinallyClauseSyntax finallyClause = null;
             if (this.CurrentToken.Kind == SyntaxKind.CatchKeyword)
             {
                 catchClauses = _pool.Allocate<CatchClauseSyntax>();
@@ -8963,20 +8962,11 @@ done:
                 }
             }
 
-            var finallyKeyword = 
+            var finallyKeyword = this.EatMissingToken(SyntaxKind.FinallyKeyword);
 
-            if (this.CurrentToken.Kind == SyntaxKind.FinallyKeyword)
-            {
-                finallyClause = _syntaxFactory.FinallyClause(
-                    this.EatToken(),
-                    this.ParsePossiblyAttributedBlock());
-            }
-            else if (catchClauses.IsNull)
-            {
-                finallyClause = _syntaxFactory.FinallyClause(
-                        SyntaxFactory.MissingToken(SyntaxKind.FinallyKeyword),
-                        missingBlock());
-            }
+            var finallyBlock = finallyKeyword.IsMissing ? missingBlock() : this.ParsePossiblyAttributedBlock();
+
+            var finallyClause = (!finallyKeyword.IsMissing || catchClauses.IsNull) ? _syntaxFactory.FinallyClause(finallyKeyword, finallyBlock) : null;
 
             return _syntaxFactory.TryStatement(
                 attributes,
