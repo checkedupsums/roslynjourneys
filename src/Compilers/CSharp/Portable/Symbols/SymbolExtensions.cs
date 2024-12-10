@@ -301,7 +301,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             if (diagnostics != null && symbol.CompilationAllowsUnsafe() &&
                 (modifiers & DeclarationModifiers.Unsafe) == DeclarationModifiers.Unsafe)
             {
-                diagnostics.Add(ErrorCode.WRN_ErrorOverride, errorLocation, new CSDiagnosticInfo(ErrorCode.WRN_UnsafeUnneeded));
+                diagnostics.Add(ErrorCode.WRN_UnsafeUnneeded, errorLocation);
             }
         }
 

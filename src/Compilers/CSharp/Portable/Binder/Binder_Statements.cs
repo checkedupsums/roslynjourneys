@@ -171,7 +171,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             if (this.Compilation.Options.AllowUnsafe)
             {
-                Error(diagnostics, ErrorCode.WRN_ErrorOverride, node.UnsafeKeyword, new CSDiagnosticInfo(ErrorCode.WRN_UnsafeUnneeded));
+                Error(diagnostics, ErrorCode.WRN_UnsafeUnneeded, node.UnsafeKeyword);
             }
 
             return BindEmbeddedBlock(node.Block, diagnostics);
