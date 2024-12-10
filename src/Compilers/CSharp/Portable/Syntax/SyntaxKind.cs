@@ -328,6 +328,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         ImplicitKeyword = 8384,
 
         SafeKeyword = 8385,
+        /// <summary>Represents <see langword="scoped"/>.</summary>
+        ScopedKeyword = 8448,
 
         ReservedKeyword = 8404,
 
@@ -420,7 +422,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Represents <see langword="required"/>.</summary>
         RequiredKeyword = 8447,
         /// <summary>Represents <see langword="scoped"/>.</summary>
-        ScopedKeyword = 8448,
+        //ScopedKeyword = 8448, Free Keyword
         /// <summary>Represents <see langword="file"/>.</summary>
         FileKeyword = 8449,
         /// <summary>Represents <see langword="allows"/>.</summary>

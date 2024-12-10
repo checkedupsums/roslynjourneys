@@ -1226,10 +1226,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case SyntaxKind.ManagedKeyword:
                 case SyntaxKind.UnmanagedKeyword:
                 case SyntaxKind.RequiredKeyword:
-                case SyntaxKind.ScopedKeyword:
                 case SyntaxKind.FileKeyword:
                 case SyntaxKind.AllowsKeyword:
                     return true;
+                case SyntaxKind.ScopedKeyword:
                 default:
                     return false;
             }
