@@ -246,18 +246,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             get
             {
-                // we will fail anyways. Assert is just to catch that earlier.
                 Debug.Assert(_blendedTokens != null);
 
-                //PERF: currentNode is a BlendedNode, which is a fairly large struct.
-                // the following code tries not to pull the whole struct into a local
-                // we only need .Node
-                var node = _currentNode.Node;
-                if (node != null)
-                    return node;
-
-                this.ReadCurrentNode();
-                return _currentNode.Node;
+                return _currentNode.Node ?? ReadCurrentNode().Node;
             }
         }
 
@@ -270,17 +261,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
-        private void ReadCurrentNode()
-        {
-            if (_tokenOffset == 0)
-            {
-                _currentNode = _firstBlender.ReadNode(_mode);
-            }
-            else
-            {
-                _currentNode = _blendedTokens[_tokenOffset - 1].Blender.ReadNode(_mode);
-            }
-        }
+        private BlendedNode ReadCurrentNode()
+            => _currentNode = _tokenOffset == 0 ? _firstBlender.ReadNode(_mode) : _blendedTokens[_tokenOffset - 1].Blender.ReadNode(_mode);
 
         protected GreenNode EatNode()
         {
@@ -293,7 +275,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             // store possible non-token in token sequence 
             if (_tokenOffset >= _blendedTokens.Length)
             {
-                this.AddTokenSlot();
+                AddTokenSlot();
             }
 
             _blendedTokens[_tokenOffset++] = _currentNode;
