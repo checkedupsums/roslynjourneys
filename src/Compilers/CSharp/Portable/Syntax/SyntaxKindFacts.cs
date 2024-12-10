@@ -18,10 +18,8 @@ namespace Microsoft.CodeAnalysis.CSharp
         public static IEnumerable<SyntaxKind> GetReservedKeywordKinds()
         {
             for (int i = (int)SyntaxKind.BoolKeyword; i <= (int)SyntaxKind.ImplicitKeyword; i++)
-            {
-                Debug.Assert(Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i));
-                yield return (SyntaxKind)i;
-            }
+                if (Enum.IsDefined(typeof(SyntaxKind), (SyntaxKind)i))
+                    yield return (SyntaxKind)i;
         }
 
         public static IEnumerable<SyntaxKind> GetKeywordKinds()
