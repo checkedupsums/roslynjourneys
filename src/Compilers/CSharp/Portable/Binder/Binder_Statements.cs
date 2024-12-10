@@ -169,17 +169,6 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         private BoundStatement BindUnsafeStatement(UnsafeStatementSyntax node, BindingDiagnosticBag diagnostics)
         {
-            var unsafeBinder = this.GetBinder(node);
-
-            if (!this.Compilation.Options.AllowUnsafe)
-            {
-                Error(diagnostics, ErrorCode.ERR_IllegalUnsafe, node.UnsafeKeyword);
-            }
-            else if (this.IsIndirectlyInIterator) // called *after* we know the binder map has been created.
-            {
-                CheckFeatureAvailability(node.UnsafeKeyword, MessageID.IDS_FeatureRefUnsafeInIteratorAsync, diagnostics);
-            }
-
             return BindEmbeddedBlock(node.Block, diagnostics);
         }
 

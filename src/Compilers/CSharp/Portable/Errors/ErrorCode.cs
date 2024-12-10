@@ -194,7 +194,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_BadVarargs = 224,
         ERR_ParamsMustBeCollection = 225,
         ERR_IllegalArglist = 226,
-        ERR_IllegalUnsafe = 227,
+        //ERR_IllegalUnsafe = 227,
         //ERR_NoAccessibleMember = 228,
         ERR_AmbigMember = 229,
         ERR_BadForeachDecl = 230,
@@ -2185,10 +2185,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         WRN_CapturedPrimaryConstructorParameterInFieldInitializer = 9124,
         WRN_ByValArraySizeConstRequired = 9125,
 
-        ERR_BadRefInUsingAlias = 9130,
-        ERR_BadUnsafeInUsingDirective = 9131,
-        ERR_BadNullableReferenceTypeInUsingAlias = 9132,
-        ERR_BadStaticAfterUnsafe = 9133,
+        //ERR_BadRefInUsingAlias = 9130,
+        //ERR_BadUnsafeInUsingDirective = 9131,
+        //ERR_BadNullableReferenceTypeInUsingAlias = 9132,
+        //ERR_BadStaticAfterUnsafe = 9133,
 
         ERR_BadCaseInSwitchArm = 9134,
         ERR_ConstantValueOfTypeExpected = 9135,

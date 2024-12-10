@@ -236,13 +236,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     diagnostics.Add(ErrorCode.ERR_BadMemberFlag, errorLocation, SyntaxFacts.GetText(SyntaxKind.RequiredKeyword));
                     result &= ~DeclarationModifiers.Required;
                 }
-
-                // NOTE: always cascading on a const, so suppress.
-                // NOTE: we're being a bit sneaky here - we're using the containingType rather than this symbol
-                // to determine whether or not unsafe is allowed.  Since this symbol and the containing type are
-                // in the same compilation, it won't make a difference.  We do, however, have to pass the error
-                // location explicitly.
-                containingType.CheckUnsafeModifier(result, errorLocation, diagnostics);
             }
 
             if (isRefField)
@@ -578,7 +571,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         diagnostics.Add(ErrorCode.ERR_IllegalFixedType, loc);
                     }
 
-                    if (!binder.InUnsafeRegion)
+                    if (!this.DeclaringCompilation.Options.AllowUnsafe && !binder.InUnsafeRegion)
                     {
                         diagnosticsForFirstDeclarator.Add(ErrorCode.ERR_UnsafeNeeded, declarator.Location);
                     }

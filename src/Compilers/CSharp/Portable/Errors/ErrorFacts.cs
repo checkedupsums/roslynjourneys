@@ -791,7 +791,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_BadVarargs
                 or ErrorCode.ERR_ParamsMustBeCollection
                 or ErrorCode.ERR_IllegalArglist
-                or ErrorCode.ERR_IllegalUnsafe
+                //or ErrorCode.ERR_IllegalUnsafe
                 or ErrorCode.ERR_AmbigMember
                 or ErrorCode.ERR_BadForeachDecl
                 or ErrorCode.ERR_ParamsLast
@@ -2348,10 +2348,10 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_StructLayoutCyclePrimaryConstructorParameter
                 or ErrorCode.ERR_UnexpectedParameterList
                 or ErrorCode.WRN_AddressOfInAsync
-                or ErrorCode.ERR_BadRefInUsingAlias
-                or ErrorCode.ERR_BadUnsafeInUsingDirective
-                or ErrorCode.ERR_BadNullableReferenceTypeInUsingAlias
-                or ErrorCode.ERR_BadStaticAfterUnsafe
+                //or ErrorCode.ERR_BadRefInUsingAlias
+                //or ErrorCode.ERR_BadUnsafeInUsingDirective
+                //or ErrorCode.ERR_BadNullableReferenceTypeInUsingAlias
+                //or ErrorCode.ERR_BadStaticAfterUnsafe
                 or ErrorCode.ERR_BadCaseInSwitchArm
                 or ErrorCode.ERR_InterceptorsFeatureNotEnabled
                 or ErrorCode.ERR_InterceptorContainingTypeCannotBeGeneric

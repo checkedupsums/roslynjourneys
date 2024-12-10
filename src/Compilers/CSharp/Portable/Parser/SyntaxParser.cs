@@ -605,6 +605,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
         }
 
+        protected SyntaxToken? EatTokenBiasedly(SyntaxKind kind)
+        {
+            var tok = this.TryEatToken(kind);
+            return tok is null ? null : WithAdditionalDiagnostics(tok, this.GetExpectedTokenError(SyntaxKind.None, kind));
+        }
+
         protected SyntaxToken EatTokenWithPrejudice(SyntaxKind kind)
         {
             var token = this.CurrentToken;
