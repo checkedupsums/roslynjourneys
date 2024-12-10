@@ -8008,11 +8008,8 @@ done:
                         return this.ParseSwitchStatement(attributes);
                     case SyntaxKind.ThrowKeyword:
                         return this.ParseThrowStatement(attributes);
-                    case SyntaxKind.UnsafeKeyword:
-                        result = TryParseStatementStartingWithUnsafe(attributes);
-                        if (result != null)
-                            return result;
-                        break;
+                    case SyntaxKind.UnsafeKeyword when this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken:
+                        return ParseUnsafeStatement(attributes); 
                     case SyntaxKind.UsingKeyword:
                         return ParseStatementStartingWithUsing(attributes);
                     case SyntaxKind.WhileKeyword:
@@ -8138,10 +8135,6 @@ done:
 
         private StatementSyntax ParseStatementStartingWithUsing(SyntaxList<AttributeListSyntax> attributes)
             => PeekToken(1).Kind == SyntaxKind.OpenParenToken ? ParseUsingStatement(attributes) : ParseLocalDeclarationStatement(attributes);
-
-        // Checking for brace to disambiguate between unsafe statement and unsafe local function
-        private StatementSyntax TryParseStatementStartingWithUnsafe(SyntaxList<AttributeListSyntax> attributes)
-            => this.PeekToken(1).Kind == SyntaxKind.OpenBraceToken ? ParseUnsafeStatement(attributes) : null;
 
         private bool IsPossibleAwaitUsing()
             => CurrentToken.ContextualKind == SyntaxKind.AwaitKeyword && PeekToken(1).Kind == SyntaxKind.UsingKeyword;
