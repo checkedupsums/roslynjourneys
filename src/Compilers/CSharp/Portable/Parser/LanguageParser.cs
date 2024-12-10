@@ -8829,6 +8829,7 @@ done:
                 case SyntaxKind.RefKeyword:
                 case SyntaxKind.ExternKeyword:
                 case SyntaxKind.OpenBracketToken:
+                case SyntaxKind.SafeKeyword:
                 case SyntaxKind.CaseKeyword: // for parsing an errant case without a switch.
                 case SyntaxKind.SemicolonToken:
                     return true;

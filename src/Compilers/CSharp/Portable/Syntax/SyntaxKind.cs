@@ -327,6 +327,10 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Represents <see langword="implicit"/>.</summary>
         ImplicitKeyword = 8384,
 
+        SafeKeyword = 8385,
+
+        ReservedKeyword = 8404,
+
         // contextual keywords
         /// <summary>Represents <see langword="yield"/>.</summary>
         YieldKeyword = 8405,
