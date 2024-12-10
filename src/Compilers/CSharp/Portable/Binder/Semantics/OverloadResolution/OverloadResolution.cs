@@ -449,7 +449,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 RemoveStaticInstanceMismatches(results, arguments, receiver);
 
                 RemoveConstraintViolations(results, template: new CompoundUseSiteInfo<AssemblySymbol>(useSiteInfo));
-                //if ((options & Options.IsMethodGroupConversion) != 0) << Excuse me, what the fuck?
+                //if ((options & Options.IsMethodGroupConversion) != 0) // << Excuse me, what the fuck?
                 RemoveDelegateConversionsWithWrongReturnType(results, ref useSiteInfo, returnRefKind, returnType, isFunctionPointerConversion: (options & Options.IsFunctionPointerResolution) != 0);
             }
 
@@ -843,14 +843,42 @@ outerDefault:
             // Delegate conversions apply to method in a method group, not to properties in a "property group".
             Debug.Assert(typeof(TMember) == typeof(MethodSymbol));
 
-            for (int f = 0; f < results.Count; ++f)
+            int f, j = -1;
+
+            if (returnType is null)
+            {
+                for (f = 0; f < results.Count; ++f)
+                {
+                    var result = results[f];
+                    if (!result.Result.IsValid)
+                        continue;
+                    var method = (MethodSymbol)(Symbol)result.Member;
+
+                    if (method.ReturnsVoid)
+                    {
+                        j = f;
+                        break;
+                    }
+                }
+
+                if (j >= 0)
+                    for (f = 0; f < results.Count; ++f)
+                    {
+                        if (f == j)
+                            continue;
+                        var result = results[f];
+                        if (!result.Result.IsValid)
+                            continue;
+
+                        results[f] = result.WithResult(MemberAnalysisResult.WrongReturnType());
+                    }
+            }
+
+            for (f = 0; f < results.Count; ++f)
             {
                 var result = results[f];
                 if (!result.Result.IsValid)
-                {
                     continue;
-                }
-
                 var method = (MethodSymbol)(Symbol)result.Member;
                 bool returnsMatch;
 

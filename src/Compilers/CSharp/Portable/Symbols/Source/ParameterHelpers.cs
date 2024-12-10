@@ -92,13 +92,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         RefKind.In => CreateInModifiers(binder, diagnostics, syntax),
                         RefKind.RefReadOnlyParameter => CreateRefReadonlyParameterModifiers(binder, diagnostics, syntax),
                         RefKind.Out => CreateOutModifiers(binder, diagnostics, syntax),
-                        _ => ImmutableArray<CustomModifier>.Empty
+                        _ => []
                     };
-
-                    if (parameterType.IsVoidType())
-                    {
-                        diagnostics.Add(ErrorCode.ERR_NoVoidParameter, syntax.Type.Location);
-                    }
 
                     return new FunctionPointerParameterSymbol(
                         parameterType,

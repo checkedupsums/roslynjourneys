@@ -2239,15 +2239,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                         // Cannot reference System.Void directly.
                         var singleType = singleResult as TypeSymbol;
-                        if ((object)singleType != null && singleType.PrimitiveTypeCode == Cci.PrimitiveTypeCode.Void && simpleName == "Void")
-                        {
-                            wasError = true;
-                            var errorInfo = new CSDiagnosticInfo(ErrorCode.ERR_SystemVoid);
-                            diagnostics.Add(errorInfo, where.Location);
-                            singleResult = new ExtendedErrorTypeSymbol(GetContainingNamespaceOrType(singleResult), singleResult, LookupResultKind.NotReferencable, errorInfo); // UNDONE: Review resultkind.
-                        }
                         // Check for bad symbol.
-                        else
                         {
                             if (singleResult.Kind == SymbolKind.NamedType &&
                                 ((SourceModuleSymbol)this.Compilation.SourceModule).AnyReferencedAssembliesAreLinked)
