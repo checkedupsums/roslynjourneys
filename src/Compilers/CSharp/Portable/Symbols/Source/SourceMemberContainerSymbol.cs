@@ -349,7 +349,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 diagnostics,
                 out modifierErrors);
 
-            this.CheckUnsafeModifier(mods, diagnostics);
+            this.CheckUnsafeModifier(mods, diagnostics.DiagnosticBag);
 
             if (!modifierErrors &&
                 (mods & DeclarationModifiers.Abstract) != 0 &&
@@ -3311,7 +3311,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 if (this.ContainingSymbol is not NamespaceSymbol { IsGlobalNamespace: true }
                     || this.Name != WellKnownMemberNames.TopLevelStatementsEntryPointTypeName)
                 {
-                    return ImmutableArray<SynthesizedSimpleProgramEntryPointSymbol>.Empty;
+                    return [];
                 }
 
                 ArrayBuilder<SynthesizedSimpleProgramEntryPointSymbol>? builder = null;
@@ -3320,25 +3320,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     if (singleDecl.IsSimpleProgram)
                     {
-                        if (builder is null)
-                        {
-                            builder = ArrayBuilder<SynthesizedSimpleProgramEntryPointSymbol>.GetInstance();
-                        }
-                        else
-                        {
-                            Binder.Error(diagnostics, ErrorCode.ERR_SimpleProgramMultipleUnitsWithTopLevelStatements, singleDecl.NameLocation);
-                        }
+                        builder ??= ArrayBuilder<SynthesizedSimpleProgramEntryPointSymbol>.GetInstance();
 
                         builder.Add(new SynthesizedSimpleProgramEntryPointSymbol(this, singleDecl, diagnostics));
                     }
                 }
 
-                if (builder is null)
-                {
-                    return ImmutableArray<SynthesizedSimpleProgramEntryPointSymbol>.Empty;
-                }
-
-                return builder.ToImmutableAndFree();
+                return builder?.ToImmutableAndFree() ?? [];
             }
         }
 

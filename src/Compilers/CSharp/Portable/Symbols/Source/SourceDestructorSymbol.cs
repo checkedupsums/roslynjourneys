@@ -23,7 +23,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             base(containingType, syntax.GetReference(), GetSymbolLocation(syntax, out Location location), isIterator: SyntaxFacts.HasYieldOperations(syntax.Body),
                  MakeModifiersAndFlags(containingType, syntax, isNullableAnalysisEnabled, location, diagnostics, out bool modifierErrors))
         {
-            this.CheckUnsafeModifier(DeclarationModifiers, diagnostics);
+            this.CheckUnsafeModifier(DeclarationModifiers, diagnostics.DiagnosticBag);
 
             bool hasBlockBody = syntax.Body != null;
             bool isExpressionBodied = IsExpressionBodied;

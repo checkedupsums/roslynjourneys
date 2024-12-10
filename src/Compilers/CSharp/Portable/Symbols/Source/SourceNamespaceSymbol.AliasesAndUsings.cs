@@ -736,7 +736,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                             if (usingDirective.UnsafeKeyword != default)
                             {
                                 var unsafeKeywordLocation = usingDirective.UnsafeKeyword.GetLocation();
-                                declaringSymbol.CheckUnsafeModifier(DeclarationModifiers.Unsafe, unsafeKeywordLocation, diagnostics);
+                                declaringSymbol.CheckUnsafeModifier(DeclarationModifiers.Unsafe, diagnostics, unsafeKeywordLocation);
                                 flags |= BinderFlags.UnsafeRegion;
                             }
                             else

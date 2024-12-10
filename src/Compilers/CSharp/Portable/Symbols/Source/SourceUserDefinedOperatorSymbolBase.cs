@@ -50,7 +50,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             _explicitInterfaceType = explicitInterfaceType;
             _name = name;
 
-            this.CheckUnsafeModifier(declarationModifiers, diagnostics);
+            this.CheckUnsafeModifier(declarationModifiers, diagnostics.DiagnosticBag);
 
             if (this.ContainingType.IsInterface &&
                 !(IsAbstract || IsVirtual) && !IsExplicitInterfaceImplementation &&

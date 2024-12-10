@@ -772,19 +772,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 {
                     case SyntaxKind.GlobalStatement:
                         if (seen < NamespaceParts.MembersAndStatements)
-                        {
                             seen = NamespaceParts.MembersAndStatements;
-                        }
                         else if (seen == NamespaceParts.TypesAndNamespaces)
-                        {
                             seen = NamespaceParts.TopLevelStatementsAfterTypesAndNamespaces;
-
-                            if (!IsScript)
-                            {
-                                memberOrStatement = this.AddError(memberOrStatement, ErrorCode.ERR_TopLevelStatementAfterNamespaceOrType);
-                            }
-                        }
-
                         break;
 
                     case SyntaxKind.NamespaceDeclaration:
@@ -797,16 +787,13 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     case SyntaxKind.RecordDeclaration:
                     case SyntaxKind.RecordStructDeclaration:
                         if (seen < NamespaceParts.TypesAndNamespaces)
-                        {
                             seen = NamespaceParts.TypesAndNamespaces;
-                        }
                         break;
 
                     default:
                         if (seen < NamespaceParts.MembersAndStatements)
-                        {
                             seen = NamespaceParts.MembersAndStatements;
-                        }
+
                         break;
                 }
 

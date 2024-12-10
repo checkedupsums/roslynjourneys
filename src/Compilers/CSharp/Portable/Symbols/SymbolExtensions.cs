@@ -283,22 +283,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        internal static bool CompilationAllowsUnsafe(this Symbol symbol)
+        internal static void CheckUnsafeModifier(this Symbol symbol, DeclarationModifiers modifiers, DiagnosticBag? diagnostics, Location errorLocation = null!)
         {
-            return symbol.DeclaringCompilation.Options.AllowUnsafe;
-        }
-
-        internal static void CheckUnsafeModifier(this Symbol symbol, DeclarationModifiers modifiers, BindingDiagnosticBag diagnostics)
-        {
-            symbol.CheckUnsafeModifier(modifiers, symbol.GetFirstLocation(), diagnostics);
-        }
-
-        internal static void CheckUnsafeModifier(this Symbol symbol, DeclarationModifiers modifiers, Location errorLocation, BindingDiagnosticBag diagnostics)
-            => CheckUnsafeModifier(symbol, modifiers, errorLocation, diagnostics.DiagnosticBag);
-
-        internal static void CheckUnsafeModifier(this Symbol symbol, DeclarationModifiers modifiers, Location errorLocation, DiagnosticBag? diagnostics)
-        {
-            if (diagnostics != null && symbol.CompilationAllowsUnsafe() &&
+            errorLocation ??= symbol.GetFirstLocation();
+            if (diagnostics != null && symbol.DeclaringCompilation.Options.AllowUnsafe &&
                 (modifiers & DeclarationModifiers.Unsafe) == DeclarationModifiers.Unsafe)
             {
                 diagnostics.Add(ErrorCode.WRN_UnsafeUnneeded, errorLocation);
