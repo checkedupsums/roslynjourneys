@@ -46,9 +46,7 @@ internal sealed partial class XmlDocCommentCompletionProvider : AbstractDocComme
         {
             var keywordText = SyntaxFacts.GetText(keywordKind);
 
-            // There are several very special keywords like `__makeref`, which are not intended for pubic use.
-            // They all start with `_`, so we are filtering them here
-            if (keywordText[0] != '_')
+            if (keywordText.Length > 0 && keywordText[0] != '_')
             {
                 keywordsBuilder.Add(keywordText);
             }
