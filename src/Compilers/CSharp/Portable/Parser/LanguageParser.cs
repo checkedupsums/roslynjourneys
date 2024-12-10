@@ -8823,7 +8823,6 @@ done:
                 case SyntaxKind.UsingKeyword:
                 case SyntaxKind.WhileKeyword:
                 case SyntaxKind.OpenBraceToken:
-                case SyntaxKind.SemicolonToken:
                 case SyntaxKind.StaticKeyword:
                 case SyntaxKind.ReadOnlyKeyword:
                 case SyntaxKind.VolatileKeyword:
@@ -8831,6 +8830,7 @@ done:
                 case SyntaxKind.ExternKeyword:
                 case SyntaxKind.OpenBracketToken:
                 case SyntaxKind.CaseKeyword: // for parsing an errant case without a switch.
+                case SyntaxKind.SemicolonToken:
                     return true;
 
                 case SyntaxKind.IdentifierToken:
