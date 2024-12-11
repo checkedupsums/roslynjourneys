@@ -852,7 +852,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_GenericConstraintNotSatisfiedValType
                 or ErrorCode.ERR_DuplicateGeneratedName
                 or ErrorCode.ERR_GlobalSingleTypeNameNotFound
-                or ErrorCode.ERR_NewBoundMustBeLast
+                //or ErrorCode.ERR_NewBoundMustBeLast
                 or ErrorCode.ERR_TypeVarCantBeNull
                 or ErrorCode.ERR_DuplicateBound
                 or ErrorCode.ERR_ClassBoundNotFirst

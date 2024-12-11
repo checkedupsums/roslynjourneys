@@ -11,9 +11,14 @@ namespace Microsoft.CodeAnalysis.CSharp
 
         FTL_DebugEmitFailure = 10000,
         FTL_MetadataCantOpenFile = 10001,
+        FTL_BadCodepage = 10002,
+        FTL_InvalidTarget = 10003,
+        FTL_InvalidInputFileName = 10004,
+        FTL_OutputFileExists = 10005,
+        FTL_BadChecksumAlgorithm = 10006,
 
         ERR_NoMetadataFile = 1,
-        ERR_NewBoundMustBeLast = 2,
+
         ERR_NoTypeDef = 3,
         ERR_OutputWriteFailed = 4,
         ERR_MultipleEntryPoints = 5,
@@ -909,13 +914,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_BadBaseNumber = 2013,
         // WRN_UseNewSwitch = 2014,    //unused.
         ERR_BinaryFile = 2015,
-        FTL_BadCodepage = 2016,
         ERR_NoMainOnDLL = 2017,
-        //FTL_NoMessagesDLL = 2018,
-        FTL_InvalidTarget = 2019,
-        //ERR_BadTargetForSecondInputSet = 2020,    Roslyn doesn't support building two binaries at once!
-        FTL_InvalidInputFileName = 2021,
-        //ERR_NoSourcesInLastInputSet = 2022,       Roslyn doesn't support building two binaries at once!
         WRN_NoConfigNotOnCommandLine = 2023,
         ERR_InvalidFileAlignment = 2024,
         //ERR_NoDebugSwitchSourceMap = 2026,    no sourcemap support in Roslyn.
@@ -924,7 +923,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         //ERR_InvalidSourceMap = 2030,
         //ERR_NoSourceMapFile = 2031,
         //ERR_IllegalOptionChar = 2032,
-        FTL_OutputFileExists = 2033,
         ERR_OneAliasPerReference = 2034,
         ERR_SwitchNeedsNumber = 2035,
         ERR_MissingDebugSwitch = 2036,
@@ -965,7 +963,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         WRN_CLS_BadTypeVar = 3024,
         WRN_CLS_VolatileField = 3026,
         WRN_CLS_BadInterface = 3027,
-        FTL_BadChecksumAlgorithm = 3028,
         // 4000 unused
         ERR_BadAwaitArgIntrinsic = 4001,
         // 4002 unused

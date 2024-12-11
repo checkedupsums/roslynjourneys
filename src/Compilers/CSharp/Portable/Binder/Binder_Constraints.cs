@@ -205,9 +205,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                             diagnostics.Add(ErrorCode.ERR_NewBoundWithUnmanaged, syntax.GetFirstToken().GetLocation());
                         }
 
-                        if (i != n - 1 && constraintsSyntax[i + 1].Kind() != SyntaxKind.AllowsConstraintClause)
+                        //if (i != n - 1 && constraintsSyntax[i + 1].Kind() != SyntaxKind.AllowsConstraintClause)
                         {
-                            diagnostics.Add(ErrorCode.ERR_NewBoundMustBeLast, syntax.GetFirstToken().GetLocation());
+                            // Dev69
                         }
 
                         constraints |= TypeParameterConstraintKind.Constructor;
