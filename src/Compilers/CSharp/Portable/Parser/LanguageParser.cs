@@ -1793,7 +1793,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         closeBrace = this.EatToken(SyntaxKind.CloseBraceToken);
                     }
 
-                    semicolon = TryEatToken(SyntaxKind.SemicolonToken);
+                    semicolon = TryEatToken(SyntaxKind.SemicolonToken)!;
                 }
 
                 return constructTypeDeclaration(_syntaxFactory, attributes, modifiers, keyword, recordModifier, name, typeParameters, paramList, baseList, constraints, openBrace, members, closeBrace, semicolon);
@@ -1925,8 +1925,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 }
             }
         }
-
-#nullable disable
 
         private void SkipBadMemberListTokens(ref SyntaxToken openBrace, SyntaxListBuilder members)
         {
