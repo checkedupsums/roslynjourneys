@@ -5166,8 +5166,8 @@ parse_member_name:;
 
             return (flags == GetOriginalVariableFlags(old))
                 && (isFirst == WasFirstVariable(old))
-                && old.Initializer == null  //worst pain in earth \./     // can't reuse node that possibly ends in an expression
-                && (oldKind = old?.Parent?.Kind() ?? SyntaxKind.None) != SyntaxKind.VariableDeclaration // or in a method body
+                && old.Initializer == null // can't reuse node that possibly ends in an expression
+                && (oldKind = old.Parent.Kind()) != SyntaxKind.VariableDeclaration // or in a method body
                 && oldKind != SyntaxKind.LocalDeclarationStatement;
         }
 
