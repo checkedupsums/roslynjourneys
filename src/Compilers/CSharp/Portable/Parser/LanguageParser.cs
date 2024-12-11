@@ -9751,8 +9751,6 @@ done:
 
         private SwitchSectionSyntax ParseSwitchSection()
         {
-            Debug.Assert(this.IsPossibleSwitchSection());
-
             // First, parse case label(s)
             var labels = _pool.Allocate<SwitchLabelSyntax>();
             var statements = _pool.Allocate<StatementSyntax>();
