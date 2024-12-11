@@ -955,7 +955,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_IdentityConversion
                 or ErrorCode.ERR_ConversionNotInvolvingContainedType
                 or ErrorCode.ERR_DuplicateConversionInClass
-                or ErrorCode.ERR_OperatorsMustBeStatic
+                //or ErrorCode.ERR_OperatorsMustBeStatic
                 or ErrorCode.ERR_BadIncDecSignature
                 or ErrorCode.ERR_BadUnaryOperatorSignature
                 or ErrorCode.ERR_BadBinaryOperatorSignature

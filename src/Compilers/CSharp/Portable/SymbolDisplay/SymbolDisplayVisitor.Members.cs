@@ -340,8 +340,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             // If we're using the metadata format, then include the return type.
                             // Otherwise we eschew it since it is redundant in a conversion
                             // signature.
-                            if (Format.CompilerInternalOptions.IncludesOption(SymbolDisplayCompilerInternalOptions.UseMetadataMemberNames) ||
-                                tryGetUserDefinedOperatorTokenKind(symbol.MetadataName) == SyntaxKind.None)
+                            if (Format.CompilerInternalOptions.IncludesOption(SymbolDisplayCompilerInternalOptions.UseMetadataMemberNames) || SyntaxFacts.GetOperatorKind(symbol.MetadataName) == SyntaxKind.None)
                             {
                                 goto default;
                             }
@@ -516,7 +515,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                             }
                             else
                             {
-                                addUserDefinedOperatorName(symbol, tryGetUserDefinedOperatorTokenKind(operatorName), operatorName);
+                                addUserDefinedOperatorName(symbol, SyntaxFacts.GetOperatorKind(operatorName), operatorName);
                             }
                             break;
                         }
@@ -534,7 +533,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                         }
                         else
                         {
-                            SyntaxKind operatorKind = tryGetUserDefinedOperatorTokenKind(symbol.MetadataName);
+                            SyntaxKind operatorKind = SyntaxFacts.GetOperatorKind(symbol.MetadataName);
 
                             if (operatorKind == SyntaxKind.None)
                             {
@@ -666,22 +665,6 @@ namespace Microsoft.CodeAnalysis.CSharp
                 AddCustomModifiersIfNeeded(symbol.ReturnTypeCustomModifiers, leadingSpace: true, trailingSpace: false);
 
                 AddPunctuation(SyntaxKind.GreaterThanToken);
-            }
-
-            static SyntaxKind tryGetUserDefinedOperatorTokenKind(string operatorName)
-            {
-                if (operatorName == WellKnownMemberNames.TrueOperatorName)
-                {
-                    return SyntaxKind.TrueKeyword;
-                }
-                else if (operatorName == WellKnownMemberNames.FalseOperatorName)
-                {
-                    return SyntaxKind.FalseKeyword;
-                }
-                else
-                {
-                    return SyntaxFacts.GetOperatorKind(operatorName);
-                }
             }
 
             void addUserDefinedOperatorName(IMethodSymbol symbol, SyntaxKind operatorKind, string operatorName)

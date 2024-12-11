@@ -78,11 +78,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     diagnostics.Add(ErrorCode.ERR_ExplicitImplementationOfOperatorsMustBeStatic, this.GetFirstLocation(), this);
                 }
             }
-            else if (this.DeclaredAccessibility != Accessibility.Public || !this.IsStatic)
-            {
-                // CS0558: User-defined operator '...' must be declared static and public
-                diagnostics.Add(ErrorCode.ERR_OperatorsMustBeStatic, this.GetFirstLocation(), this);
-            }
 
             // SPEC: Because an external operator provides no actual implementation, 
             // SPEC: its operator body consists of a semicolon. For expression-bodied
@@ -201,11 +196,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 }
             }
 
-            if (methodKind is MethodKind.UserDefinedOperator)
-            {
-                result |= DeclarationModifiers.Public | DeclarationModifiers.Static;
-            }
-
             return result;
 
             static void reportModifierIfPresent(DeclarationModifiers result, DeclarationModifiers errorModifier, Location location, BindingDiagnosticBag diagnostics, CSharpRequiredLanguageVersion requiredVersionArgument, string availableVersionArgument)
@@ -288,7 +278,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             CheckValueParameters(diagnostics);
-            CheckOperatorSignatures(diagnostics);
+            int i = CheckOperatorSignatures(diagnostics);
+            CheckThisCount(diagnostics, i);
         }
 
         protected abstract (TypeWithAnnotations ReturnType, ImmutableArray<ParameterSymbol> Parameters) MakeParametersAndBindReturnType(BindingDiagnosticBag diagnostics);
@@ -343,20 +334,49 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        private void CheckOperatorSignatures(BindingDiagnosticBag diagnostics)
+        private void CheckThisCount(BindingDiagnosticBag diagnostic, int i)
+        {
+            var syntax = this.SyntaxNode as OperatorDeclarationSyntax;
+
+            if (this.IsStatic)
+            {
+                for (int j = 0; j < ParameterCount; j++)
+                {
+                    if (this.Parameters[j].IsThis)
+                        diagnostic.Add(ErrorCode.ERR_ThisInStaticMeth, syntax.ParameterList.Parameters[j]);
+                }
+            }
+            else
+            {
+                int j = 0;
+                int t = 0;
+                for (; j < ParameterCount; j++)
+                {
+                    if (this.Parameters[j].IsThis)
+                        t++;
+                }
+
+                if (i > 0 && t != i)
+                {
+                    diagnostic.Add(ErrorCode.ERR_BadThisParam, syntax.ParameterList, "Must have exactly one this param! or make static. (and have none;)");
+                }
+            }
+        }
+
+        private int CheckOperatorSignatures(BindingDiagnosticBag diagnostics)
         {
             if (MethodKind == MethodKind.ExplicitInterfaceImplementation)
             {
                 // The signature is driven by the interface
-                return;
+                return -1;
             }
 
             // Have we even got the right formal parameter arity? If not then 
             // we are in an error recovery scenario and we should just bail 
             // out immediately.
-            if (!DoesOperatorHaveCorrectArity(this.Name, this.ParameterCount))
+            if (this.ParameterCount != ParameterCountArity(this.Name))
             {
-                return;
+                return -1;
             }
 
             switch (this.Name)
@@ -365,7 +385,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case WellKnownMemberNames.ExplicitConversionName:
                 case WellKnownMemberNames.CheckedExplicitConversionName:
                     CheckUserDefinedConversionSignature(diagnostics);
-                    break;
+                    return 1;
 
                 case WellKnownMemberNames.CheckedUnaryNegationOperatorName:
                 case WellKnownMemberNames.UnaryNegationOperatorName:
@@ -373,25 +393,25 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case WellKnownMemberNames.LogicalNotOperatorName:
                 case WellKnownMemberNames.OnesComplementOperatorName:
                     CheckUnarySignature(diagnostics);
-                    break;
+                    return 1;
 
                 case WellKnownMemberNames.TrueOperatorName:
                 case WellKnownMemberNames.FalseOperatorName:
                     CheckTrueFalseSignature(diagnostics);
-                    break;
+                    return 1;
 
                 case WellKnownMemberNames.CheckedIncrementOperatorName:
                 case WellKnownMemberNames.IncrementOperatorName:
                 case WellKnownMemberNames.CheckedDecrementOperatorName:
                 case WellKnownMemberNames.DecrementOperatorName:
                     CheckIncrementDecrementSignature(diagnostics);
-                    break;
+                    return 1;
 
                 case WellKnownMemberNames.LeftShiftOperatorName:
                 case WellKnownMemberNames.RightShiftOperatorName:
                 case WellKnownMemberNames.UnsignedRightShiftOperatorName:
                     CheckShiftSignature(diagnostics);
-                    break;
+                    return 1;
 
                 case WellKnownMemberNames.EqualityOperatorName:
                 case WellKnownMemberNames.InequalityOperatorName:
@@ -404,15 +424,15 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                         CheckBinarySignature(diagnostics);
                     }
 
-                    break;
+                    return -1;
 
                 default:
                     CheckBinarySignature(diagnostics);
-                    break;
+                    return -1;
             }
         }
 
-        private static bool DoesOperatorHaveCorrectArity(string name, int parameterCount)
+        private static int ParameterCountArity(string name)
         {
             switch (name)
             {
@@ -425,14 +445,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case WellKnownMemberNames.UnaryPlusOperatorName:
                 case WellKnownMemberNames.LogicalNotOperatorName:
                 case WellKnownMemberNames.OnesComplementOperatorName:
-                case WellKnownMemberNames.TrueOperatorName:
-                case WellKnownMemberNames.FalseOperatorName:
                 case WellKnownMemberNames.ImplicitConversionName:
                 case WellKnownMemberNames.ExplicitConversionName:
                 case WellKnownMemberNames.CheckedExplicitConversionName:
-                    return parameterCount == 1;
+                    return 1;
                 default:
-                    return parameterCount == 2;
+                    return 2;
             }
         }
 
@@ -611,24 +629,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             CheckReturnIsNotVoid(diagnostics);
-        }
-
-        private void CheckTrueFalseSignature(BindingDiagnosticBag diagnostics)
-        {
-            // SPEC: A unary true or false operator must take a single parameter of type
-            // SPEC: T or T? and must return type bool.
-
-            if (this.ReturnType.SpecialType != SpecialType.System_Boolean)
-            {
-                // The return type of operator True or False must be bool
-                diagnostics.Add(ErrorCode.ERR_OpTFRetType, this.GetFirstLocation());
-            }
-
-            if (!MatchesContainingType(this.GetParameterType(0).StrippedType()))
-            {
-                // The parameter of a unary operator must be the containing type
-                diagnostics.Add((IsAbstract || IsVirtual) ? ErrorCode.ERR_BadAbstractUnaryOperatorSignature : ErrorCode.ERR_BadUnaryOperatorSignature, this.GetFirstLocation());
-            }
         }
 
         private void CheckIncrementDecrementSignature(BindingDiagnosticBag diagnostics)

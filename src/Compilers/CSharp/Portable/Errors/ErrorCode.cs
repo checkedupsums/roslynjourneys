@@ -378,7 +378,7 @@ namespace Microsoft.CodeAnalysis.CSharp
         ERR_IdentityConversion = 555,
         ERR_ConversionNotInvolvingContainedType = 556,
         ERR_DuplicateConversionInClass = 557,
-        ERR_OperatorsMustBeStatic = 558,
+        //ERR_OperatorsMustBeStatic = 558,
         ERR_BadIncDecSignature = 559,
         ERR_BadUnaryOperatorSignature = 562,
         ERR_BadBinaryOperatorSignature = 563,
