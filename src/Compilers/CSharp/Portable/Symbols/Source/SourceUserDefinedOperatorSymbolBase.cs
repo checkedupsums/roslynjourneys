@@ -278,8 +278,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
 
             CheckValueParameters(diagnostics);
-            int i = CheckOperatorSignatures(diagnostics);
-            CheckThisCount(diagnostics, i);
+            CheckOperatorSignatures(diagnostics);
         }
 
         protected abstract (TypeWithAnnotations ReturnType, ImmutableArray<ParameterSymbol> Parameters) MakeParametersAndBindReturnType(BindingDiagnosticBag diagnostics);
@@ -334,41 +333,12 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             }
         }
 
-        private void CheckThisCount(BindingDiagnosticBag diagnostic, int i)
-        {
-            var syntax = this.SyntaxNode as OperatorDeclarationSyntax;
-
-            if (this.IsStatic)
-            {
-                for (int j = 0; j < ParameterCount; j++)
-                {
-                    if (this.Parameters[j].IsThis)
-                        diagnostic.Add(ErrorCode.ERR_ThisInStaticMeth, syntax.ParameterList.Parameters[j]);
-                }
-            }
-            else
-            {
-                int j = 0;
-                int t = 0;
-                for (; j < ParameterCount; j++)
-                {
-                    if (this.Parameters[j].IsThis)
-                        t++;
-                }
-
-                if (i > 0 && t != i)
-                {
-                    diagnostic.Add(ErrorCode.ERR_BadThisParam, syntax.ParameterList, "Must have exactly one this param! or make static. (and have none;)");
-                }
-            }
-        }
-
-        private int CheckOperatorSignatures(BindingDiagnosticBag diagnostics)
+        private void CheckOperatorSignatures(BindingDiagnosticBag diagnostics)
         {
             if (MethodKind == MethodKind.ExplicitInterfaceImplementation)
             {
                 // The signature is driven by the interface
-                return -1;
+                return;
             }
 
             // Have we even got the right formal parameter arity? If not then 
@@ -376,7 +346,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             // out immediately.
             if (this.ParameterCount != ParameterCountArity(this.Name))
             {
-                return -1;
+                return;
             }
 
             switch (this.Name)
@@ -385,7 +355,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case WellKnownMemberNames.ExplicitConversionName:
                 case WellKnownMemberNames.CheckedExplicitConversionName:
                     CheckUserDefinedConversionSignature(diagnostics);
-                    return 1;
+                    return;
 
                 case WellKnownMemberNames.CheckedUnaryNegationOperatorName:
                 case WellKnownMemberNames.UnaryNegationOperatorName:
@@ -393,25 +363,25 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 case WellKnownMemberNames.LogicalNotOperatorName:
                 case WellKnownMemberNames.OnesComplementOperatorName:
                     CheckUnarySignature(diagnostics);
-                    return 1;
+                    return;
 
                 case WellKnownMemberNames.TrueOperatorName:
                 case WellKnownMemberNames.FalseOperatorName:
                     CheckTrueFalseSignature(diagnostics);
-                    return 1;
+                    return;
 
                 case WellKnownMemberNames.CheckedIncrementOperatorName:
                 case WellKnownMemberNames.IncrementOperatorName:
                 case WellKnownMemberNames.CheckedDecrementOperatorName:
                 case WellKnownMemberNames.DecrementOperatorName:
                     CheckIncrementDecrementSignature(diagnostics);
-                    return 1;
+                    return;
 
                 case WellKnownMemberNames.LeftShiftOperatorName:
                 case WellKnownMemberNames.RightShiftOperatorName:
                 case WellKnownMemberNames.UnsignedRightShiftOperatorName:
                     CheckShiftSignature(diagnostics);
-                    return 1;
+                    return;
 
                 case WellKnownMemberNames.EqualityOperatorName:
                 case WellKnownMemberNames.InequalityOperatorName:
@@ -423,12 +393,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                     {
                         CheckBinarySignature(diagnostics);
                     }
-
-                    return -1;
+                    return;
 
                 default:
                     CheckBinarySignature(diagnostics);
-                    return -1;
+                    return;
             }
         }
 
