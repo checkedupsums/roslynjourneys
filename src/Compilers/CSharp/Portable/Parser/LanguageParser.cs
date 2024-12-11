@@ -9012,8 +9012,7 @@ done:
 
             CatchFilterClauseSyntax filter = null;
 
-            var keywordKind = this.CurrentToken.ContextualKind;
-            if (keywordKind == SyntaxKind.WhenKeyword || keywordKind == SyntaxKind.IfKeyword)
+            if (this.CurrentToken.ContextualKind is SyntaxKind.WhenKeyword or SyntaxKind.IfKeyword)
             {
                 var whenKeyword = ConvertToKeyword(this.EatToken());
 
