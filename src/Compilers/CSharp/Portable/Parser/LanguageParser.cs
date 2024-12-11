@@ -9122,23 +9122,30 @@ done:
         {
             var @do = this.EatToken();
             var statement = this.ParseEmbeddedStatement();
-            var @while = this.EatToken(SyntaxKind.WhileKeyword);
-            var openParen = this.EatToken(SyntaxKind.OpenParenToken);
+            var @while = this.TryEatToken(SyntaxKind.WhileKeyword);
 
-            var saveTerm = _termState;
-            _termState |= TerminatorState.IsEndOfDoWhileExpression;
-            var expression = this.ParseExpressionCore();
-            _termState = saveTerm;
+            if (@while.IsMissing && statement is BlockSyntax)
+            {
+                var condition = _syntaxFactory.LiteralExpression(SyntaxKind.DefaultLiteralExpression,
+                            SyntaxFactory.MissingToken(SyntaxKind.DefaultKeyword));
+                return _syntaxFactory.DoStatement(attributes, @do, statement, @while,
+                    SyntaxFactory.MissingOpenParen, condition, SyntaxFactory.MissingCloseParen,
+                        this.TryEatToken(SyntaxKind.SemicolonToken));
+            }
+            else
+            {
+                var openParen = this.EatMissingToken(SyntaxKind.OpenParenToken);
 
-            return _syntaxFactory.DoStatement(
-                attributes,
-                @do,
-                statement,
-                @while,
-                openParen,
-                expression,
-                this.EatToken(SyntaxKind.CloseParenToken),
-                this.EatToken(SyntaxKind.SemicolonToken));
+                var saveTerm = _termState; _termState |= TerminatorState.IsEndOfDoWhileExpression;
+                var expression = this.ParseExpressionCore(); _termState = saveTerm;
+
+                var closeParen = this.ProduceMissingCongener(openParen, SyntaxKind.CloseParenToken);
+
+                return _syntaxFactory.DoStatement(
+                    attributes, @do, statement,
+                    @while, openParen, expression, closeParen,
+                    this.EatToken(SyntaxKind.SemicolonToken));
+            }
         }
 
         private bool IsEndOfDoWhileExpression()
