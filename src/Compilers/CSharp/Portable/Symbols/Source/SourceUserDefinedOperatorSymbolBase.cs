@@ -4,7 +4,6 @@
 
 #nullable disable
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -200,6 +199,11 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
                 {
                     result |= DeclarationModifiers.Sealed;
                 }
+            }
+
+            if (methodKind is MethodKind.UserDefinedOperator)
+            {
+                result |= DeclarationModifiers.Public | DeclarationModifiers.Static;
             }
 
             return result;
