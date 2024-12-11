@@ -30,12 +30,6 @@ namespace Microsoft.CodeAnalysis.CSharp
         {
             Debug.Assert(SwitchSyntax.Equals(node));
 
-            if (node.Sections.Count == 0)
-            {
-                diagnostics.Add(ErrorCode.WRN_EmptySwitch, node.OpenBraceToken.GetLocation());
-            }
-
-            // Bind switch expression and set the switch governing type.
             BoundExpression boundSwitchGoverningExpression = SwitchGoverningExpression;
             diagnostics.AddRange(SwitchGoverningDiagnostics, allowMismatchInDependencyAccumulation: true);
 
@@ -47,11 +41,9 @@ namespace Microsoft.CodeAnalysis.CSharp
                 syntax: node,
                 switchGoverningExpression: boundSwitchGoverningExpression,
                 switchSections: switchSections,
-                // If there is no explicit default label, the default action is to break out of the switch
                 defaultLabel: defaultLabel?.Label ?? BreakLabel,
                 diagnostics);
 
-            // Report subsumption errors, but ignore the input's constant value for that.
             CheckSwitchErrors(ref switchSections, decisionDag, diagnostics);
 
             // When the input is constant, we use that to reshape the decision dag that is returned

@@ -69,7 +69,7 @@
                 case ErrorCode.WRN_DeprecatedCollectionInitAdd:
                 case ErrorCode.WRN_DefaultValueForUnconsumedLocation:
                 case ErrorCode.WRN_IdentifierOrNumericLiteralExpected:
-                case ErrorCode.WRN_EmptySwitch:
+                //case ErrorCode.WRN_EmptySwitch:
                 case ErrorCode.WRN_XMLParseError:
                 case ErrorCode.WRN_DuplicateParamTag:
                 case ErrorCode.WRN_UnmatchedParamTag:

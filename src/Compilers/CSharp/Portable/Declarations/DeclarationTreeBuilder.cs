@@ -186,18 +186,7 @@ namespace Microsoft.CodeAnalysis.CSharp
 
             // wrap all global statements in a compilation unit into a simple program type:
             if (firstGlobalStatement is object)
-            {
-                var diagnostics = ImmutableArray<Diagnostic>.Empty;
-
-                if (!hasNonEmptyGlobalStatement)
-                {
-                    var bag = DiagnosticBag.GetInstance();
-                    bag.Add(ErrorCode.ERR_SimpleProgramIsEmpty, ((EmptyStatementSyntax)firstGlobalStatement.Statement).SemicolonToken.GetLocation());
-                    diagnostics = bag.ToReadOnlyAndFree();
-                }
-
-                childrenBuilder.Add(CreateSimpleProgram(firstGlobalStatement, hasAwaitExpressions, isIterator, hasReturnWithExpression, diagnostics));
-            }
+                childrenBuilder.Add(CreateSimpleProgram(firstGlobalStatement, hasAwaitExpressions, isIterator, hasReturnWithExpression, []));
 
             // wrap all members that are defined in a namespace or compilation unit into an implicit type:
             if (hasGlobalMembers)

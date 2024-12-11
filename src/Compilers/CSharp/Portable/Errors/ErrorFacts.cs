@@ -341,7 +341,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 case ErrorCode.WRN_WarningDirective:
                 case ErrorCode.WRN_UnreachableGeneralCatch:
                 case ErrorCode.WRN_DefaultValueForUnconsumedLocation:
-                case ErrorCode.WRN_EmptySwitch:
+                //case ErrorCode.WRN_EmptySwitch:
                 case ErrorCode.WRN_XMLParseError:
                 case ErrorCode.WRN_BadXMLRef:
                 case ErrorCode.WRN_BadXMLRefParamType:
@@ -1209,7 +1209,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_InvalidMemberDecl
                 or ErrorCode.ERR_MemberNeedsType
                 or ErrorCode.ERR_BadBaseType
-                or ErrorCode.WRN_EmptySwitch
+                //or ErrorCode.WRN_EmptySwitch
                 //or ErrorCode.ERR_ExpectedEndTry
                 or ErrorCode.ERR_InvalidExprTerm
                 //or ErrorCode.ERR_BadNewExpr
@@ -2180,7 +2180,7 @@ namespace Microsoft.CodeAnalysis.CSharp
                 or ErrorCode.ERR_CantConvAnonMethReturnType
                 or ErrorCode.ERR_BuilderAttributeDisallowed
                 or ErrorCode.ERR_FeatureNotAvailableInVersion10
-                or ErrorCode.ERR_SimpleProgramIsEmpty
+                //or ErrorCode.ERR_SimpleProgramIsEmpty
                 or ErrorCode.ERR_LineSpanDirectiveInvalidValue
                 or ErrorCode.ERR_LineSpanDirectiveEndLessThanStart
                 or ErrorCode.ERR_WrongArityAsyncReturn

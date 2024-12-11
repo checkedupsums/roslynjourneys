@@ -449,7 +449,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         protected void ForceEndOfFile()
             => _currentToken = SyntaxFactory.Token(SyntaxKind.EndOfFileToken);
 
-        protected SyntaxToken EatTokenAsIfKind(SyntaxKind expected)
+        protected SyntaxToken EatTokenAsIfKind(SyntaxKind expected, bool reportError = true)
         {
             var ct = this.CurrentToken;
             if (ct.Kind == expected)
@@ -457,7 +457,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 MoveToNextToken();
                 return ct;
             }
-            var replacement = TokenOrExpectedDiagnostics(SyntaxFactory.MissingToken(expected), this.CurrentToken.Kind, reportError: true);
+            var replacement = TokenOrExpectedDiagnostics(SyntaxFactory.MissingToken(expected), this.CurrentToken.Kind, reportError: reportError);
             return AddTrailingSkippedSyntax(replacement, this.EatToken());
         }
 

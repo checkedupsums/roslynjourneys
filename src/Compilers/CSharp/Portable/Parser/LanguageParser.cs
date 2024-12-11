@@ -3872,8 +3872,8 @@ parse_member_name:;
             }
 
             var paramList = this.ParseParenthesizedParameterList();
-
-            switch (paramList.Parameters.Count)
+            var amount = paramList.Parameters.Count;// + (modifiers.Any((int)DeclarationModifiers.Static) ? 0 : 1);
+            switch (amount)
             {
                 case 1:
                     if (opToken.IsMissing || !SyntaxFacts.IsOverloadableUnaryOperator(opKind))
@@ -4486,7 +4486,7 @@ parse_member_name:;
 
         internal ParameterListSyntax ParseParenthesizedParameterList()
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameterList(this.CurrentNode as CSharp.Syntax.ParameterListSyntax))
+            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameterList(this.CurrentNode as Syntax.ParameterListSyntax))
             {
                 return (ParameterListSyntax)this.EatNode();
             }
@@ -4497,7 +4497,7 @@ parse_member_name:;
 
         internal BracketedParameterListSyntax ParseBracketedParameterList()
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseBracketedParameterList(this.CurrentNode as CSharp.Syntax.BracketedParameterListSyntax))
+            if (this.IsIncrementalAndFactoryContextMatches && CanReuseBracketedParameterList(this.CurrentNode as Syntax.BracketedParameterListSyntax))
             {
                 return (BracketedParameterListSyntax)this.EatNode();
             }
@@ -4659,7 +4659,7 @@ parse_member_name:;
 
         private ParameterSyntax ParseParameter()
         {
-            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameter(this.CurrentNode as CSharp.Syntax.ParameterSyntax))
+            if (this.IsIncrementalAndFactoryContextMatches && CanReuseParameter(this.CurrentNode as Syntax.ParameterSyntax))
             {
                 return (ParameterSyntax)this.EatNode();
             }
@@ -4738,7 +4738,6 @@ parse_member_name:;
                 {
                     tryScoped = false;
                 }
-
                 modifiers.Add(this.EatToken());
             }
 
