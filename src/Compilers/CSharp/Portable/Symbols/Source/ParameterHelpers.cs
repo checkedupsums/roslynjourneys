@@ -140,7 +140,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
 
                 if (thisKeyword.Kind() != SyntaxKind.None && !allowThis)
                 {
-                    diagnostics.Add(ErrorCode.ERR_ThisInBadContext, thisKeyword.GetLocation());
+                    //diagnostics.Add(ErrorCode.ERR_ThisInBadContext, thisKeyword.GetLocation());
                 }
 
                 if (parameterSyntax is ParameterSyntax concreteParam)

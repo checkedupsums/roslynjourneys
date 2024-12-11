@@ -408,7 +408,7 @@ namespace Microsoft.CodeAnalysis
             {
                 return Node != null
                     ? new SyntaxTriviaList(this, Node.GetLeadingTriviaCore(), this.Position)
-                    : default(SyntaxTriviaList);
+                    : default;
             }
         }
 
@@ -422,7 +422,7 @@ namespace Microsoft.CodeAnalysis
             {
                 if (Node == null)
                 {
-                    return default(SyntaxTriviaList);
+                    return default;
                 }
 
                 var leading = Node.GetLeadingTriviaCore();
@@ -477,7 +477,7 @@ namespace Microsoft.CodeAnalysis
         {
             return Node != null
                 ? new SyntaxToken(null, Node.WithLeadingTrivia(GreenNode.CreateList(trivia, static t => t.RequiredUnderlyingNode)), position: 0, index: 0)
-                : default(SyntaxToken);
+                : default;
         }
 
         /// <summary>
