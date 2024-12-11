@@ -870,14 +870,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return false;
         }
 
-        public bool IsEndOfNamespace()
-        {
-            return this.CurrentToken.Kind == SyntaxKind.CloseBraceToken;
-        }
-
         private bool IsNamespaceMemberStartOrStop()
         {
-            return this.IsEndOfNamespace()
+            return this.CurrentToken.Kind == SyntaxKind.CloseBraceToken
                 || this.IsPossibleNamespaceMemberDeclaration();
         }
 
