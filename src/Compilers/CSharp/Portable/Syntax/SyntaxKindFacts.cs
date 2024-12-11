@@ -10,10 +10,11 @@ namespace Microsoft.CodeAnalysis.CSharp
 {
     public static partial class SyntaxFacts
     {
+        public static bool bKindIsIdentifierOrKeyword(SyntaxKind kind)
+            => kind is SyntaxKind.IdentifierToken || IsKeywordKind(kind);
+
         public static bool IsKeywordKind(SyntaxKind kind)
-        {
-            return IsReservedKeyword(kind) || IsContextualKeyword(kind);
-        }
+            => IsReservedKeyword(kind) || IsContextualKeyword(kind);
 
         public static IEnumerable<SyntaxKind> GetReservedKeywordKinds()
         {
