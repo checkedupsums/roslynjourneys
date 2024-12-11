@@ -3366,7 +3366,7 @@ parse_member_name:;
             // Check for 'forward' declarations with no block of any kind
             if (this.CurrentToken.Kind == SyntaxKind.SemicolonToken)
             {
-                blockBody = null;
+                blockBody = missingBlock;
                 expressionBody = null;
                 semicolon = this.EatToken(SyntaxKind.SemicolonToken);
                 return;
@@ -7949,6 +7949,12 @@ done:
                 {
                     switch (this.CurrentToken.Kind)
                     {
+                        case SyntaxKind.DoKeyword:
+                        case SyntaxKind.UseKeyword:
+                        case SyntaxKind.UsingKeyword:
+                        case SyntaxKind.ScopeKeyword:
+                        case SyntaxKind.ScopedKeyword:
+                            return this.ParseDoStatement(attributes);
                         case SyntaxKind.SafeKeyword:
                         case SyntaxKind.UnsafeKeyword:
                             return ParseUnsafeStatement(attributes);
@@ -7974,8 +7980,6 @@ done:
                     case SyntaxKind.CheckedKeyword:
                     case SyntaxKind.UncheckedKeyword:
                         return this.ParseCheckedStatement(attributes);
-                    case SyntaxKind.DoKeyword:
-                        return this.ParseDoStatement(attributes);
                     case SyntaxKind.ForKeyword:
                         return this.ParseForOrForEachStatement(attributes);
                     case SyntaxKind.ForEachKeyword:
@@ -7993,11 +7997,17 @@ done:
                         return this.ParseReturnStatement(attributes);
                     case SyntaxKind.SwitchKeyword:
                     case SyntaxKind.CaseKeyword: // error recovery case.
-                        return this.ParseSwitchStatement(attributes);
-                    case SyntaxKind.ThrowKeyword:
-                        return this.ParseThrowStatement(attributes);
+                        return this.ParseSwitchStatement(attributes);//\
+                    case SyntaxKind.ThrowKeyword:  //                 //\
+                        return this.ParseThrowStatement(attributes); //  \      /\\
+                                               ////  \ || /               \ || /  \\
+                    case SyntaxKind.UseKeyword: //    \../ To remove soon. \../    \\
+                    case SyntaxKind.UsingKeyword when PeekToken(1).Kind == SyntaxKind.OpenParenToken:
+                        return ParseLocalDeclarationStatement(attributes);
                     case SyntaxKind.UsingKeyword:
-                        return ParseStatementStartingWithUsing(attributes);
+                    case SyntaxKind.ScopeKeyword:
+                    case SyntaxKind.ScopedKeyword:
+                        return ParseUsingStatement(attributes);
                     case SyntaxKind.WhileKeyword:
                         return this.ParseWhileStatement(attributes);
                     case SyntaxKind.OpenBraceToken:
@@ -8099,6 +8109,21 @@ done:
                     return this.ParseUsingStatement(attributes, this.EatContextualToken(SyntaxKind.AwaitKeyword));
                 }
             }
+            else if (this.IsPossibleOutLabel())
+            {
+                var @out = this.EatToken();
+                SyntaxToken Identifier = this.ParseIdentifierToken();
+                if (this.IsTrueIdentifier())
+                {
+                    Identifier = this.AddLeadingSkippedSyntax(Identifier, @out);
+                }
+                else
+                {
+                    Identifier = this.AddError(this.ParseIdentifierToken(), ErrorCode.ERR_IdentifierExpected);
+                }
+                return _syntaxFactory.LabeledStatement(attributes, Identifier, SyntaxFactory.MissingToken(SyntaxKind.ColonToken), 
+                                _syntaxFactory.EmptyStatement(default, this.EatToken(SyntaxKind.SemicolonToken)));
+            }
             else if (this.IsPossibleLabeledStatement())
             {
                 return this.ParseLabeledStatement(attributes);
@@ -8119,16 +8144,14 @@ done:
             return null;
         }
 
-        private StatementSyntax ParseStatementStartingWithUsing(SyntaxList<AttributeListSyntax> attributes)
-            => PeekToken(1).Kind == SyntaxKind.OpenParenToken ? ParseUsingStatement(attributes) : ParseLocalDeclarationStatement(attributes);
+        private bool IsPossibleAwaitUsing() => CurrentToken.ContextualKind == SyntaxKind.AwaitKeyword && PeekToken(1).Kind == SyntaxKind.UsingKeyword;
 
-        private bool IsPossibleAwaitUsing()
-            => CurrentToken.ContextualKind == SyntaxKind.AwaitKeyword && PeekToken(1).Kind == SyntaxKind.UsingKeyword;
+        private bool IsPossibleLabeledStatement() => this.NextToken.Kind == SyntaxKind.ColonToken && this.IsTrueIdentifier();
 
-        private bool IsPossibleLabeledStatement()
-        {
-            return this.PeekToken(1).Kind == SyntaxKind.ColonToken && this.IsTrueIdentifier();
-        }
+        private bool IsPossibleOutLabel() =>
+            this.CurrentToken.Kind is SyntaxKind.OutKeyword &&
+            this.NextToken.Kind is SyntaxKind.IdentifierToken &&
+            this.PeekToken(2).Kind is SyntaxKind.SemicolonToken;
 
         private bool IsPossibleYieldStatement()
         {
@@ -8914,7 +8937,7 @@ done:
                 Debug.Assert(@try.ContainsDiagnostics);
                 Debug.Assert(this.CurrentToken.Kind is SyntaxKind.CatchKeyword or SyntaxKind.FinallyKeyword);
 
-                tryBlock = missingBlock();
+                tryBlock = missingBlock;
             }
             else
             {
@@ -8936,7 +8959,7 @@ done:
 
             var finallyKeyword = this.EatMissingToken(SyntaxKind.FinallyKeyword);
 
-            var finallyBlock = finallyKeyword.IsMissing ? missingBlock() : this.ParsePossiblyAttributedBlock();
+            var finallyBlock = finallyKeyword.IsMissing ? missingBlock : this.ParsePossiblyAttributedBlock();
 
             var finallyClause = (!finallyKeyword.IsMissing || catchClauses.IsNull) ? _syntaxFactory.FinallyClause(finallyKeyword, finallyBlock) : null;
 
@@ -8947,13 +8970,13 @@ done:
                 _pool.ToListAndFree(catchClauses),
                 finallyClause);
 
-            BlockSyntax missingBlock()
-                => _syntaxFactory.Block(
-                    attributeLists: default,
-                    SyntaxFactory.MissingToken(SyntaxKind.OpenBraceToken),
-                    statements: default,
-                    SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken));
         }
+
+        BlockSyntax missingBlock => _syntaxFactory.Block(
+                attributeLists: default,
+                SyntaxFactory.MissingToken(SyntaxKind.OpenBraceToken),
+                statements: default,
+                SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken));
 
         private bool IsEndOfTryBlock()
         {
@@ -9062,8 +9085,7 @@ done:
 
         private DoStatementSyntax ParseDoStatement(SyntaxList<AttributeListSyntax> attributes)
         {
-            Debug.Assert(this.CurrentToken.Kind == SyntaxKind.DoKeyword);
-            var @do = this.EatToken(SyntaxKind.DoKeyword);
+            var @do = this.EatToken();
             var statement = this.ParseEmbeddedStatement();
             var @while = this.EatToken(SyntaxKind.WhileKeyword);
             var openParen = this.EatToken(SyntaxKind.OpenParenToken);
@@ -9968,10 +9990,6 @@ done:
 
         private LabeledStatementSyntax ParseLabeledStatement(SyntaxList<AttributeListSyntax> attributes)
         {
-            // We have an identifier followed by a colon. But if the identifier is a contextual keyword in a query context,
-            // ParseIdentifier will result in a missing name and Eat(Colon) will fail. We won't make forward progress.
-            Debug.Assert(this.IsTrueIdentifier() && this.PeekToken(1).Kind == SyntaxKind.ColonToken);
-
             return _syntaxFactory.LabeledStatement(
                 attributes,
                 this.ParseIdentifierToken(),

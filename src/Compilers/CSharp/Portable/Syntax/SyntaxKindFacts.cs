@@ -1012,6 +1012,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case "safe":
                     return SyntaxKind.SafeKeyword;
+                case "scope":
+                    return SyntaxKind.ScopeKeyword;
                 default:
                     return SyntaxKind.None;
             }
@@ -1664,6 +1666,8 @@ namespace Microsoft.CodeAnalysis.CSharp
 
                 case SyntaxKind.SafeKeyword:
                     return "safe"; //"unsafe" <- Autism.
+                case SyntaxKind.ScopeKeyword:
+                    return "scope";
 
                 case SyntaxKind.ElifKeyword:
                     return "elif";

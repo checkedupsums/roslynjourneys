@@ -327,9 +327,11 @@ namespace Microsoft.CodeAnalysis.CSharp
         /// <summary>Represents <see langword="implicit"/>.</summary>
         ImplicitKeyword = 8384,
 
-        SafeKeyword = 8385,
+        UseKeyword = 8400,
+        SafeKeyword = 8401,
+        ScopeKeyword = 8402,
         /// <summary>Represents <see langword="scoped"/>.</summary>
-        ScopedKeyword = 8448,
+        ScopedKeyword = 8403,
 
         ReservedKeyword = 8404,
 
