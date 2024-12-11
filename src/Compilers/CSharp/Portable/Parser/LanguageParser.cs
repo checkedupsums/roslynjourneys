@@ -9773,8 +9773,7 @@ done:
                     {
                         var node = ParseExpressionOrPatternForSwitchStatement();
 
-                        // if there is a 'when' token, we treat a case expression as a constant pattern.
-                        if (this.CurrentToken.ContextualKind == SyntaxKind.WhenKeyword && node is ExpressionSyntax ex)
+                        if (this.CurrentToken.ContextualKind is SyntaxKind.WhenKeyword or SyntaxKind.IfKeyword && node is ExpressionSyntax ex)
                             node = _syntaxFactory.ConstantPattern(ex);
 
                         if (node.Kind == SyntaxKind.DiscardPattern)
@@ -10183,13 +10182,8 @@ done:
 
         private WhenClauseSyntax ParseWhenClause(Precedence precedence)
         {
-            if (this.CurrentToken.ContextualKind != SyntaxKind.WhenKeyword)
-            {
-                return null;
-            }
-
             return _syntaxFactory.WhenClause(
-                this.EatContextualToken(SyntaxKind.WhenKeyword),
+                ConvertToKeyword(this.EatToken(SyntaxKind.WhenKeyword, SyntaxKind.IfKeyword)),
                 ParseSubExpression(precedence));
         }
 

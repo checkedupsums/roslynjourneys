@@ -431,6 +431,18 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             }
             return TokenOrExpectedDiagnostics(SyntaxFactory.MissingToken(kind), this.CurrentToken.Kind, reportError: true);
         }
+
+        protected SyntaxToken EatToken(SyntaxKind kind, SyntaxKind orKind)
+        {
+            var ct = this.CurrentToken;
+            if (ct.Kind == kind || ct.Kind == orKind)
+            {
+                MoveToNextToken();
+                return ct;
+            }
+            return TokenOrExpectedDiagnostics(SyntaxFactory.MissingToken(kind), this.CurrentToken.Kind, reportError: true);
+        }
+
         /// <summary> Returns and consumes the current token if it has the requested <paramref name="kind"/>. Otherwise, returns <see langword="null"/>. </summary>
         protected SyntaxToken? TryEatToken(SyntaxKind kind)
             => this.CurrentToken.Kind == kind ? this.EatToken() : null;
