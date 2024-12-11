@@ -1147,7 +1147,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             // * There must be an operator true/operator false that takes the left hand type of the operator.
 
             // Only classes and structs contain user-defined operators, so we know it is a named type symbol.
-            NamedTypeSymbol t = (NamedTypeSymbol)signature.Method.ContainingType;
+            NamedTypeSymbol t = signature.Method.ContainingType;
 
             // SPEC: The return type and the type of each parameter of the selected operator
             // SPEC: must be T.
@@ -1158,7 +1158,7 @@ namespace Microsoft.CodeAnalysis.CSharp
             MethodSymbol definition;
             bool typeMatchesContainer = TypeSymbol.Equals(signature.ReturnType.StrippedType(), t, TypeCompareKind.ConsiderEverything2) ||
                                         (t.IsInterface && (signature.Method.IsAbstract || signature.Method.IsVirtual) &&
-                                         SourceUserDefinedOperatorSymbol.IsSelfConstrainedTypeParameter((definition = signature.Method.OriginalDefinition).ReturnType.StrippedType(), definition.ContainingType));
+                                         SourceUserDefinedOperatorSymbolBase.IsSelfConstrainedTypeParameter((definition = signature.Method.OriginalDefinition).ReturnType.StrippedType(), definition.ContainingType));
 
             if (!typesAreSame || !typeMatchesContainer)
             {
