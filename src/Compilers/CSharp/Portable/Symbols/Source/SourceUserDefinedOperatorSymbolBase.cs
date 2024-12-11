@@ -631,6 +631,24 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
             CheckReturnIsNotVoid(diagnostics);
         }
 
+        private void CheckTrueFalseSignature(BindingDiagnosticBag diagnostics)
+        {
+            // SPEC: A unary true or false operator must take a single parameter of type
+            // SPEC: T or T? and must return type bool.
+
+            if (this.ReturnType.SpecialType != SpecialType.System_Boolean)
+            {
+                // The return type of operator True or False must be bool
+                diagnostics.Add(ErrorCode.ERR_OpTFRetType, this.GetFirstLocation());
+            }
+
+            if (!MatchesContainingType(this.GetParameterType(0).StrippedType()))
+            {
+                // The parameter of a unary operator must be the containing type
+                diagnostics.Add((IsAbstract || IsVirtual) ? ErrorCode.ERR_BadAbstractUnaryOperatorSignature : ErrorCode.ERR_BadUnaryOperatorSignature, this.GetFirstLocation());
+            }
+        }
+
         private void CheckIncrementDecrementSignature(BindingDiagnosticBag diagnostics)
         {
             // SPEC: A unary ++ or -- operator must take a single parameter of type T or T?
