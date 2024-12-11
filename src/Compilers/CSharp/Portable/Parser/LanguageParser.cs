@@ -875,12 +875,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return this.CurrentToken.Kind == SyntaxKind.CloseBraceToken;
         }
 
-        public bool IsGobalAttributesTerminator()
-        {
-            return this.IsEndOfNamespace()
-                || this.IsPossibleNamespaceMemberDeclaration();
-        }
-
         private bool IsNamespaceMemberStartOrStop()
         {
             return this.IsEndOfNamespace()
