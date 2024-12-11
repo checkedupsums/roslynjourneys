@@ -135,11 +135,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return false;
         }
 
-        private static CSharp.CSharpSyntaxNode? GetOldParent(CSharp.CSharpSyntaxNode node)
-        {
-            return node != null ? node.Parent : null;
-        }
-
         private struct NamespaceBodyBuilder
         {
             public SyntaxListBuilder<ExternAliasDirectiveSyntax> Externs;
@@ -5124,12 +5119,12 @@ parse_member_name:;
                 }
             }
 
-            return default(SyntaxTokenList);
+            return default;
         }
 
         private static bool WasFirstVariable(Syntax.VariableDeclaratorSyntax variable)
         {
-            if (GetOldParent(variable) is Syntax.VariableDeclarationSyntax parent)
+            if (variable?.Parent is Syntax.VariableDeclarationSyntax parent)
             {
                 return parent.Variables[0] == variable;
             }
@@ -5139,9 +5134,9 @@ parse_member_name:;
 
         private static VariableFlags GetOriginalVariableFlags(Syntax.VariableDeclaratorSyntax old)
         {
-            var parent = GetOldParent(old);
+            var parent = old?.Parent;
             var mods = GetOriginalModifiers(parent);
-            VariableFlags flags = default(VariableFlags);
+            VariableFlags flags = default;
             if (mods.Any(SyntaxKind.FixedKeyword))
             {
                 flags |= VariableFlags.Fixed;
@@ -5171,8 +5166,8 @@ parse_member_name:;
 
             return (flags == GetOriginalVariableFlags(old))
                 && (isFirst == WasFirstVariable(old))
-                && old.Initializer == null  // can't reuse node that possibly ends in an expression
-                && (oldKind = GetOldParent(old).Kind()) != SyntaxKind.VariableDeclaration // or in a method body
+                && old.Initializer == null  //worst pain in earth \./     // can't reuse node that possibly ends in an expression
+                && (oldKind = old?.Parent?.Kind() ?? SyntaxKind.None) != SyntaxKind.VariableDeclaration // or in a method body
                 && oldKind != SyntaxKind.LocalDeclarationStatement;
         }
 
