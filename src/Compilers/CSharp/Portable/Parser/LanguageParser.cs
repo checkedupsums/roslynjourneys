@@ -19,6 +19,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
     using Attribs = CodeAnalysis.Syntax.InternalSyntax.SyntaxList<AttributeListSyntax>;
 
+    using static SyntaxFacts;
+
     internal sealed partial class LanguageParser : SyntaxParser
     {
         // list pools - allocators for lists that are used to build sequences of nodes. The lists
@@ -46,11 +48,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         {
             _syntaxFactoryContext = new SyntaxFactoryContext();
             _syntaxFactory = new ContextAwareSyntax(_syntaxFactoryContext);
-        }
-
-        private static bool IsSomeWord(SyntaxKind kind)
-        {
-            return kind == SyntaxKind.IdentifierToken || SyntaxFacts.IsKeywordKind(kind);
         }
 
         // Parsing rule terminating conditions.  This is how we know if it is 
@@ -1087,7 +1084,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
         }
 
         private bool IsAttributeTarget()
-            => IsSomeWord(this.CurrentToken.Kind) && this.PeekToken(1).Kind == SyntaxKind.ColonToken;
+            => bKindIsIdentifierOrKeyword(this.CurrentToken.Kind)
+                && this.PeekToken(1).Kind == SyntaxKind.ColonToken;
 
         private AttributeListSyntax? TryParseAttributeDeclaration(bool inExpressionContext)
         {
