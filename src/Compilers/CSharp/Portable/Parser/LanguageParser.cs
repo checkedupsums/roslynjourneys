@@ -104,7 +104,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     case TerminatorState.IsNamespaceMemberStartOrStop when this.IsNamespaceMemberStartOrStop():
                     case TerminatorState.IsAttributeDeclarationTerminator when this.IsAttributeDeclarationTerminator():
                     case TerminatorState.IsPossibleAggregateClauseStartOrStop when this.IsPossibleAggregateClauseStartOrStop():
-                    case TerminatorState.IsPossibleMemberStartOrStop when this.IsPossibleMemberStartOrStop():
+                    case TerminatorState.IsPossibleMemberStartOrStop when this.IsPossibleMemberStart() || this.CurrentToken.Kind == SyntaxKind.CloseBraceToken:
                     case TerminatorState.IsEndOfReturnType when this.IsEndOfReturnType():
                     case TerminatorState.IsEndOfParameterList when this.IsEndOfParameterList():
                     case TerminatorState.IsEndOfFieldDeclaration when this.IsEndOfFieldDeclaration():
@@ -2004,7 +2004,7 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
         private bool IsPossibleMemberStartOrStop()
         {
-            return this.IsPossibleMemberStart() || this.CurrentToken.Kind == SyntaxKind.CloseBraceToken;
+            return ;
         }
 
         private bool IsPossibleAggregateClauseStartOrStop()
