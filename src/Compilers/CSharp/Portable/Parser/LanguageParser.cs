@@ -103,38 +103,40 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 var ck = ct.Kind;
                 bool tob = ck == SyntaxKind.OpenBraceToken;
                 bool tcb = ck == SyntaxKind.CloseBraceToken;
+                bool tok = ck == SyntaxKind.OpenBracketToken;
+                bool tck = ck == SyntaxKind.CloseBracketToken;
                 bool top = ck == SyntaxKind.OpenParenToken;
                 bool tcp = ck == SyntaxKind.CloseParenToken;
                 bool tsc = ck == SyntaxKind.SemicolonToken;
                 switch (_termState & (TerminatorState)i)
                 {
                     case TerminatorState.IsNamespaceMemberStartOrStop when tcb || this.IsPossibleNamespaceMemberDeclaration():
-                    case TerminatorState.IsAttributeDeclarationTerminator when tcb || this.IsPossibleAttributeDeclaration():
+                    case TerminatorState.IsAttributeDeclarationTerminator when tck || this.IsPossibleAttributeDeclaration():
                     case TerminatorState.IsPossibleAggregateClauseStartOrStop when this.IsPossibleAggregateClauseStartOrStop():
                     case TerminatorState.IsPossibleMemberStartOrStop when tcb || CanStartMember(ck):
                     case TerminatorState.IsEndOfReturnType when tob || top || tsc:
-                    case TerminatorState.IsEndOfParameterList when tcp || tcb || tsc:
+                    case TerminatorState.IsEndOfParameterList when tcp || tck || tsc:
                     case TerminatorState.IsEndOfFieldDeclaration when tsc:
                     case TerminatorState.IsPossibleEndOfVariableDeclaration when tsc || ck is SyntaxKind.CommaToken:
                     case TerminatorState.IsEndOfTypeArgumentList when ck is SyntaxKind.GreaterThanToken:
                     case TerminatorState.IsPossibleStatementStartOrStop when tsc || this.IsPossibleStatement():
                     case TerminatorState.IsEndOfFixedStatement when tsc || tcp || tob:
                     case TerminatorState.IsEndOfTryBlock when ImGoingToFuckingKillMyself():
-                    case TerminatorState.IsEndOfCatchClause when tcp || tob || tcb || ImGoingToFuckingKillMyself(): 
+                    case TerminatorState.IsEndOfCatchClause when tcp || tob || tcb || ImGoingToFuckingKillMyself():
                     case TerminatorState.IsEndOfFilterClause when tcp || tob || tcb || ImGoingToFuckingKillMyself():
                     case TerminatorState.IsEndOfCatchBlock when tcb || ImGoingToFuckingKillMyself():
                     case TerminatorState.IsEndOfDoWhileExpression when tcp || tsc:
                     case TerminatorState.IsEndOfForStatementArgument when tcp || tob || tsc:
                     case TerminatorState.IsEndOfDeclarationClause when tsc || ck is SyntaxKind.SemicolonToken:
-                    case TerminatorState.IsEndOfArgumentList when tcp || tcb:
+                    case TerminatorState.IsEndOfArgumentList when tcp || tck:
                     case TerminatorState.IsSwitchSectionStart when this.IsPossibleSwitchSection():
                     case TerminatorState.IsEndOfTypeParameterList when this.IsEndOfTypeParameterList():
-                    case TerminatorState.IsEndOfMethodSignature when this.IsEndOfMethodSignature():
+                    case TerminatorState.IsEndOfMethodSignature when tsc || tob:
                     case TerminatorState.IsEndOfNameInExplicitInterface when this.IsEndOfNameInExplicitInterface():
                     case TerminatorState.IsEndOfFunctionPointerParameterList when this.IsEndOfFunctionPointerParameterList(errored: false):
                     case TerminatorState.IsEndOfFunctionPointerParameterListErrored when this.IsEndOfFunctionPointerParameterList(errored: true):
                     case TerminatorState.IsEndOfFunctionPointerCallingConvention when this.IsEndOfFunctionPointerCallingConvention():
-                    case TerminatorState.IsEndOfRecordOrClassOrStructOrInterfaceSignature when this.IsEndOfRecordOrClassOrStructOrInterfaceSignature():
+                    case TerminatorState.IsEndOfRecordOrClassOrStructOrInterfaceSignature when tsc || tob:
                         return true;
                 }
             }
@@ -3395,22 +3397,11 @@ parse_member_name:;
             return false;
         }
 
-        private bool IsEndOfMethodSignature()
-            => this.CurrentToken.Kind is SyntaxKind.SemicolonToken or SyntaxKind.OpenBraceToken;
-
-        private bool IsEndOfRecordOrClassOrStructOrInterfaceSignature()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.SemicolonToken or SyntaxKind.OpenBraceToken;
-        }
-
         private bool IsEndOfNameInExplicitInterface()
             => this.CurrentToken.Kind is SyntaxKind.DotToken or SyntaxKind.ColonColonToken;
 
         private bool IsEndOfFunctionPointerParameterList(bool errored)
             => this.CurrentToken.Kind == (errored ? SyntaxKind.CloseParenToken : SyntaxKind.GreaterThanToken);
-
-        private bool IsEndOfFunctionPointerCallingConvention()
-            => this.CurrentToken.Kind == SyntaxKind.CloseBracketToken;
 
         private MethodDeclarationSyntax ParseMethodDeclaration(
             Attribs attributes,
