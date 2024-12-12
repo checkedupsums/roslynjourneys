@@ -99,27 +99,34 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
             for (int i = 1; i <= LastTerminatorState; i <<= 1)
             {
+                var ct = this.CurrentToken;
+                var ck = ct.Kind;
+                bool tob = ck == SyntaxKind.OpenBraceToken;
+                bool tcb = ck == SyntaxKind.CloseBraceToken;
+                bool top = ck == SyntaxKind.OpenParenToken;
+                bool tcp = ck == SyntaxKind.CloseParenToken;
+                bool tsc = ck == SyntaxKind.SemicolonToken;
                 switch (_termState & (TerminatorState)i)
                 {
-                    case TerminatorState.IsNamespaceMemberStartOrStop when this.IsNamespaceMemberStartOrStop():
-                    case TerminatorState.IsAttributeDeclarationTerminator when this.IsAttributeDeclarationTerminator():
+                    case TerminatorState.IsNamespaceMemberStartOrStop when tcb || this.IsPossibleNamespaceMemberDeclaration():
+                    case TerminatorState.IsAttributeDeclarationTerminator when tcb || this.IsPossibleAttributeDeclaration():
                     case TerminatorState.IsPossibleAggregateClauseStartOrStop when this.IsPossibleAggregateClauseStartOrStop():
-                    case TerminatorState.IsPossibleMemberStartOrStop when this.IsPossibleMemberStart() || this.CurrentToken.Kind == SyntaxKind.CloseBraceToken:
-                    case TerminatorState.IsEndOfReturnType when this.IsEndOfReturnType():
-                    case TerminatorState.IsEndOfParameterList when this.IsEndOfParameterList():
-                    case TerminatorState.IsEndOfFieldDeclaration when this.IsEndOfFieldDeclaration():
-                    case TerminatorState.IsPossibleEndOfVariableDeclaration when this.IsPossibleEndOfVariableDeclaration():
-                    case TerminatorState.IsEndOfTypeArgumentList when this.IsEndOfTypeArgumentList():
-                    case TerminatorState.IsPossibleStatementStartOrStop when this.IsPossibleStatementStartOrStop():
-                    case TerminatorState.IsEndOfFixedStatement when this.IsEndOfFixedStatement():
-                    case TerminatorState.IsEndOfTryBlock when this.IsEndOfTryBlock():
-                    case TerminatorState.IsEndOfCatchClause when this.IsEndOfCatchClause():
-                    case TerminatorState.IsEndOfFilterClause when this.IsEndOfFilterClause():
-                    case TerminatorState.IsEndOfCatchBlock when this.IsEndOfCatchBlock():
-                    case TerminatorState.IsEndOfDoWhileExpression when this.IsEndOfDoWhileExpression():
-                    case TerminatorState.IsEndOfForStatementArgument when this.IsEndOfForStatementArgument():
-                    case TerminatorState.IsEndOfDeclarationClause when this.IsEndOfDeclarationClause():
-                    case TerminatorState.IsEndOfArgumentList when this.IsEndOfArgumentList():
+                    case TerminatorState.IsPossibleMemberStartOrStop when tcb || CanStartMember(ck):
+                    case TerminatorState.IsEndOfReturnType when tob || top || tsc:
+                    case TerminatorState.IsEndOfParameterList when tcp || tcb || tsc:
+                    case TerminatorState.IsEndOfFieldDeclaration when tsc:
+                    case TerminatorState.IsPossibleEndOfVariableDeclaration when tsc || ck is SyntaxKind.CommaToken:
+                    case TerminatorState.IsEndOfTypeArgumentList when ck is SyntaxKind.GreaterThanToken:
+                    case TerminatorState.IsPossibleStatementStartOrStop when tsc || this.IsPossibleStatement():
+                    case TerminatorState.IsEndOfFixedStatement when tsc || tcp || tob:
+                    case TerminatorState.IsEndOfTryBlock when ImGoingToFuckingKillMyself():
+                    case TerminatorState.IsEndOfCatchClause when tcp || tob || tcb || ImGoingToFuckingKillMyself(): 
+                    case TerminatorState.IsEndOfFilterClause when tcp || tob || tcb || ImGoingToFuckingKillMyself():
+                    case TerminatorState.IsEndOfCatchBlock when tcb || ImGoingToFuckingKillMyself():
+                    case TerminatorState.IsEndOfDoWhileExpression when tcp || tsc:
+                    case TerminatorState.IsEndOfForStatementArgument when tcp || tob || tsc:
+                    case TerminatorState.IsEndOfDeclarationClause when tsc || ck is SyntaxKind.SemicolonToken:
+                    case TerminatorState.IsEndOfArgumentList when tcp || tcb:
                     case TerminatorState.IsSwitchSectionStart when this.IsPossibleSwitchSection():
                     case TerminatorState.IsEndOfTypeParameterList when this.IsEndOfTypeParameterList():
                     case TerminatorState.IsEndOfMethodSignature when this.IsEndOfMethodSignature():
@@ -131,6 +138,9 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                         return true;
                 }
             }
+
+            bool ImGoingToFuckingKillMyself()
+                => this.CurrentToken.Kind is SyntaxKind.CatchKeyword or SyntaxKind.FinallyKeyword;
 
             return false;
         }
@@ -870,12 +880,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             return false;
         }
 
-        private bool IsNamespaceMemberStartOrStop()
-        {
-            return this.CurrentToken.Kind == SyntaxKind.CloseBraceToken
-                || this.IsPossibleNamespaceMemberDeclaration();
-        }
-
         /// <summary>
         /// Returns true if the lookahead tokens compose extern alias directive.
         /// </summary>
@@ -1059,12 +1063,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
             _termState = saveTerm;
 
             return _pool.ToListAndFree(attributes);
-        }
-
-        private bool IsAttributeDeclarationTerminator()
-        {
-            return this.CurrentToken.Kind == SyntaxKind.CloseBracketToken
-                || this.IsPossibleAttributeDeclaration(); // start of a new one...
         }
 
         private bool IsAttributeTarget()
@@ -2002,11 +2000,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                 _pool.ToTokenListAndFree(tokens).Node);
         }
 
-        private bool IsPossibleMemberStartOrStop()
-        {
-            return ;
-        }
-
         private bool IsPossibleAggregateClauseStartOrStop()
         {
             return this.CurrentToken.Kind is SyntaxKind.ColonToken or SyntaxKind.OpenBraceToken
@@ -2268,11 +2261,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
 
                 return _syntaxFactory.TypeConstraint(this.ParseType());
             }
-        }
-
-        private bool IsPossibleMemberStart()
-        {
-            return CanStartMember(this.CurrentToken.Kind);
         }
 
         private static bool CanStartMember(SyntaxKind kind)
@@ -3495,19 +3483,6 @@ parse_member_name:;
             return type;
         }
 
-        private bool IsEndOfReturnType()
-        {
-            switch (this.CurrentToken.Kind)
-            {
-                case SyntaxKind.OpenParenToken:
-                case SyntaxKind.OpenBraceToken:
-                case SyntaxKind.SemicolonToken:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
         private ConversionOperatorDeclarationSyntax TryParseConversionOperatorDeclaration(Attribs attributes, SyntaxListBuilder modifiers)
         {
             var point = GetResetPoint();
@@ -4579,11 +4554,6 @@ parse_member_name:;
             }
         }
 
-        private bool IsEndOfParameterList()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken or SyntaxKind.CloseBracketToken or SyntaxKind.SemicolonToken;
-        }
-
         private bool IsPossibleParameter()
         {
             switch (this.CurrentToken.Kind)
@@ -4930,11 +4900,6 @@ parse_member_name:;
                 eventToken,
                 _syntaxFactory.VariableDeclaration(type, variables),
                 this.EatToken(SyntaxKind.SemicolonToken));
-        }
-
-        private bool IsEndOfFieldDeclaration()
-        {
-            return this.CurrentToken.Kind == SyntaxKind.SemicolonToken;
         }
 
         private SeparatedSyntaxList<VariableDeclaratorSyntax> ParseFieldDeclarationVariableDeclarators(
@@ -5411,18 +5376,6 @@ parse_member_name:;
             }
 
             return false;
-        }
-
-        private bool IsPossibleEndOfVariableDeclaration()
-        {
-            switch (this.CurrentToken.Kind)
-            {
-                case SyntaxKind.CommaToken:
-                case SyntaxKind.SemicolonToken:
-                    return true;
-                default:
-                    return false;
-            }
         }
 
         private ExpressionSyntax ParseVariableInitializer()
@@ -6378,9 +6331,6 @@ parse_member_name:;
 
             return result;
         }
-
-        private bool IsEndOfTypeArgumentList()
-            => this.CurrentToken.Kind == SyntaxKind.GreaterThanToken;
 
         private bool IsOpenName()
         {
@@ -8800,12 +8750,6 @@ done:
             _termState = saveTerm;
         }
 
-        private bool IsPossibleStatementStartOrStop()
-        {
-            return this.CurrentToken.Kind == SyntaxKind.SemicolonToken
-                || this.IsPossibleStatement();
-        }
-
         private PostSkipAction SkipBadStatementListTokens(SyntaxListBuilder<StatementSyntax> statements, SyntaxKind expected, out GreenNode trailingTrivia)
         {
             return this.SkipBadListTokensWithExpectedKindHelper(
@@ -8883,11 +8827,6 @@ done:
                 decl,
                 this.EatToken(SyntaxKind.CloseParenToken),
                 this.ParseEmbeddedStatement());
-        }
-
-        private bool IsEndOfFixedStatement()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken or SyntaxKind.OpenBraceToken or SyntaxKind.SemicolonToken;
         }
 
         private StatementSyntax ParseEmbeddedStatement()
@@ -9003,11 +8942,6 @@ done:
                 statements: default,
                 SyntaxFactory.MissingToken(SyntaxKind.CloseBraceToken));
 
-        private bool IsEndOfTryBlock()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseBraceToken or SyntaxKind.CatchKeyword or SyntaxKind.FinallyKeyword;
-        }
-
         private CatchClauseSyntax ParseCatchClause()
         {
             Debug.Assert(this.CurrentToken.Kind == SyntaxKind.CatchKeyword);
@@ -9057,30 +8991,6 @@ done:
             return _syntaxFactory.CatchClause(@catch, decl, filter, block);
         }
 
-        private bool IsEndOfCatchClause()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken
-                or SyntaxKind.OpenBraceToken
-                or SyntaxKind.CloseBraceToken
-                or SyntaxKind.CatchKeyword
-                or SyntaxKind.FinallyKeyword;
-        }
-
-        private bool IsEndOfFilterClause()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken
-                or SyntaxKind.OpenBraceToken
-                or SyntaxKind.CloseBraceToken
-                or SyntaxKind.CatchKeyword
-                or SyntaxKind.FinallyKeyword;
-        }
-        private bool IsEndOfCatchBlock()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseBraceToken
-                or SyntaxKind.CatchKeyword
-                or SyntaxKind.FinallyKeyword;
-        }
-
         private StatementSyntax ParseCheckedStatement(Attribs attributes)
         {
             Debug.Assert(this.CurrentToken.Kind is SyntaxKind.CheckedKeyword or SyntaxKind.UncheckedKeyword);
@@ -9126,11 +9036,6 @@ done:
                     @while, openParen, expression, closeParen,
                     this.EatToken(SyntaxKind.SemicolonToken));
             }
-        }
-
-        private bool IsEndOfDoWhileExpression()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken or SyntaxKind.SemicolonToken;
         }
 
         private StatementSyntax ParseForOrForEachStatement(Attribs attributes)
@@ -9295,11 +9200,6 @@ done:
                     static (p, closeKind) => p.CurrentToken.Kind == closeKind || p.CurrentToken.Kind == SyntaxKind.SemicolonToken,
                     expectedKind, closeKind);
             }
-        }
-
-        private bool IsEndOfForStatementArgument()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.SemicolonToken or SyntaxKind.CloseParenToken or SyntaxKind.OpenBraceToken;
         }
 
         private CommonForEachStatementSyntax ParseForEachStatement(
@@ -10236,20 +10136,6 @@ done:
                 mods,
                 out localFunction);
             _termState = saveTerm;
-        }
-
-#nullable disable
-
-        private bool IsEndOfDeclarationClause()
-        {
-            switch (this.CurrentToken.Kind)
-            {
-                case SyntaxKind.SemicolonToken:
-                case SyntaxKind.ColonToken:
-                    return true;
-                default:
-                    return false;
-            }
         }
 
         private void ParseDeclarationModifiers(SyntaxListBuilder list, bool isUsingDeclaration)
@@ -11932,11 +11818,6 @@ done:
                     static (p, closeKind) => p.CurrentToken.Kind == closeKind || p.CurrentToken.Kind == SyntaxKind.SemicolonToken,
                     expectedKind, closeKind);
             }
-        }
-
-        private bool IsEndOfArgumentList()
-        {
-            return this.CurrentToken.Kind is SyntaxKind.CloseParenToken or SyntaxKind.CloseBracketToken;
         }
 
         private bool IsPossibleArgumentExpression()
