@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
+#pragma warning disable IDE1006
 
 using System;
 using System.Collections.Generic;
@@ -132,10 +133,10 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax.InternalSyntax
                     case TerminatorState.IsSwitchSectionStart when this.IsPossibleSwitchSection():
                     case TerminatorState.IsEndOfTypeParameterList when this.IsEndOfTypeParameterList():
                     case TerminatorState.IsEndOfMethodSignature when tsc || tob:
-                    case TerminatorState.IsEndOfNameInExplicitInterface when this.IsEndOfNameInExplicitInterface():
+                    case TerminatorState.IsEndOfNameInExplicitInterface when ck is SyntaxKind.DotToken or SyntaxKind.ColonColonToken:
                     case TerminatorState.IsEndOfFunctionPointerParameterList when this.IsEndOfFunctionPointerParameterList(errored: false):
                     case TerminatorState.IsEndOfFunctionPointerParameterListErrored when this.IsEndOfFunctionPointerParameterList(errored: true):
-                    case TerminatorState.IsEndOfFunctionPointerCallingConvention when this.IsEndOfFunctionPointerCallingConvention():
+                    case TerminatorState.IsEndOfFunctionPointerCallingConvention when tck:
                     case TerminatorState.IsEndOfRecordOrClassOrStructOrInterfaceSignature when tsc || tob:
                         return true;
                 }
@@ -3396,9 +3397,6 @@ parse_member_name:;
 
             return false;
         }
-
-        private bool IsEndOfNameInExplicitInterface()
-            => this.CurrentToken.Kind is SyntaxKind.DotToken or SyntaxKind.ColonColonToken;
 
         private bool IsEndOfFunctionPointerParameterList(bool errored)
             => this.CurrentToken.Kind == (errored ? SyntaxKind.CloseParenToken : SyntaxKind.GreaterThanToken);
